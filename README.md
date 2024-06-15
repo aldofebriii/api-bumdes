@@ -30,6 +30,7 @@
 
 ```bash
 $ npm install
+$ npm run seed
 ```
 
 ## Running the app
