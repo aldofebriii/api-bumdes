@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import {
@@ -8,12 +8,16 @@ import {
   NewTransaksiDTO,
   NewAkunDTO,
   NewPembelianDTO,
+  NewBebanDTO,
+  JenisTransaksi,
+  NewUtangDTO,
 } from './transaksi.controller';
 import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import HelperService from 'src/helper/helper.service';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanService from 'src/persediaan/persediaan.service';
+import Debitur from 'src/utang/debitur.entity';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -27,6 +31,7 @@ enum NamaKodeAkun {
   PERSEDIAAN_BARANG_DAGANGAN = '1.1.05.01',
   HARGA_POKOK_PENJUALAN = '5.1.01.01',
   UTANG_JK_PENDEK = '2.1.05.01',
+  UTANG_JK_PANJANG = '2.2.02.01',
 }
 
 type BarangTransaksi = { jumlah: number } & Persediaan;
@@ -44,11 +49,112 @@ export default class TransaksiService {
     private coaRepo: Repository<ChartOfAccounts>,
     @InjectRepository(Persediaan)
     private persediaanRepo: Repository<Persediaan>,
+    @InjectRepository(Debitur)
+    private debiturRepo: Repository<Debitur>,
 
     private persediaanService: PersediaanService,
     private perusahaanService: PerusahaanService,
     private helperService: HelperService,
   ) {}
+
+  private generateKodeAkun(
+    posisi: 'debit' | 'kredit',
+    jenisTransaksi: JenisTransaksi,
+  ) {
+    let listKode: string[] = [];
+    const AkunNonTunai =
+      posisi === 'debit'
+        ? NamaKodeAkun.PIUTANG_USAHA
+        : NamaKodeAkun.UTANG_JK_PENDEK;
+    switch (jenisTransaksi) {
+      case 'tunai':
+        listKode = [NamaKodeAkun.KAS_TUNAI];
+        break;
+      case 'semi-tunai':
+        listKode = [NamaKodeAkun.KAS_TUNAI, AkunNonTunai];
+        break;
+      case 'non-tunai':
+        listKode = [AkunNonTunai];
+        break;
+    }
+    return listKode;
+  }
+
+  async generateAkunUtang(newUtang: NewUtangDTO) {
+    const debitur = new Debitur();
+    debitur.nama_debitur = newUtang.nama_debitur;
+    debitur.jatuh_tempo_awal = newUtang.jatuh_tempo_awal;
+    debitur.jatuh_tempo_akhir = newUtang.jatuh_tempo_akhir;
+
+    const akunUtang: NewAkunDTO[] = [
+      {
+        posisi: 'debit',
+        kode_akun: NamaKodeAkun.KAS_TUNAI,
+        jumlah: newUtang.jumlah,
+        keterangan: newUtang.keterangan,
+      },
+    ];
+    let kodeAkun: string;
+    if (newUtang.jangka_waktu === 'pendek') {
+      kodeAkun = NamaKodeAkun.UTANG_JK_PENDEK;
+    } else {
+      kodeAkun = NamaKodeAkun.UTANG_JK_PANJANG;
+    }
+    akunUtang.push({
+      posisi: 'kredit',
+      kode_akun: kodeAkun,
+      jumlah: newUtang.jumlah,
+      keterangan: newUtang.keterangan,
+    });
+    const utang = await this.createNew([
+      {
+        akun: akunUtang,
+        perusahaan_id: newUtang.perusahaan_id,
+        keterangan: newUtang.keterangan,
+        nomor: newUtang.nomor,
+        tanggal: newUtang.tanggal,
+      },
+    ]);
+    debitur.transaksi = utang;
+    await this.debiturRepo.save(debitur);
+    return utang;
+  }
+
+  async generateAkunPembebanan(newBeban: NewBebanDTO) {
+    const kodeKredit = this.generateKodeAkun(
+      'kredit',
+      newBeban.jenis_transaksi,
+    );
+    const akunPembebanan: NewAkunDTO[] = [
+      {
+        posisi: 'debit',
+        kode_akun: newBeban.kode_akun,
+        jumlah: newBeban.jumlah,
+        keterangan: newBeban.keterangan,
+      },
+    ];
+    for (const kode of kodeKredit) {
+      akunPembebanan.push({
+        kode_akun: kode,
+        keterangan: newBeban.keterangan,
+        posisi: 'kredit',
+        jumlah:
+          NamaKodeAkun.KAS_TUNAI === kode
+            ? newBeban.uang_muka
+            : newBeban.jumlah - newBeban.uang_muka,
+      });
+    }
+    const pembebanan = await this.createNew([
+      {
+        akun: akunPembebanan,
+        keterangan: newBeban.keterangan,
+        nomor: newBeban.nomor,
+        perusahaan_id: newBeban.perusahaan_id,
+        tanggal: newBeban.tanggal,
+      },
+    ]);
+    return pembebanan;
+  }
 
   async generateAkunPembelian(newPembelian: NewPembelianDTO) {
     let total = 0;
@@ -73,18 +179,10 @@ export default class TransaksiService {
       }
       barangTerbeli.push({ ...persediaan, jumlah: bt.jumlah });
     }
-    let kodeKredit: string[] = [];
-    switch (newPembelian.jenis_pembelian) {
-      case 'tunai':
-        kodeKredit = [NamaKodeAkun.KAS_TUNAI];
-        break;
-      case 'semi-tunai':
-        kodeKredit = [NamaKodeAkun.KAS_TUNAI, NamaKodeAkun.UTANG_JK_PENDEK];
-        break;
-      case 'non-tunai':
-        kodeKredit = [NamaKodeAkun.UTANG_JK_PENDEK];
-        break;
-    }
+    const kodeKredit = this.generateKodeAkun(
+      'kredit',
+      newPembelian.jenis_transaksi,
+    );
     const akunPembelian: NewAkunDTO[] = [];
     for (const kode of kodeKredit) {
       akunPembelian.push({
@@ -115,18 +213,10 @@ export default class TransaksiService {
   }
 
   async generateAkunPenjualan(newPenjualan: NewPenjualanDTO) {
-    let kodeDebit: string[];
-    switch (newPenjualan.jenis_penjualan) {
-      case 'tunai':
-        kodeDebit = [NamaKodeAkun.KAS_TUNAI];
-        break;
-      case 'semi-tunai':
-        kodeDebit = [NamaKodeAkun.KAS_TUNAI, NamaKodeAkun.PIUTANG_USAHA];
-        break;
-      case 'non-tunai':
-        kodeDebit = [NamaKodeAkun.PIUTANG_USAHA];
-        break;
-    }
+    const kodeDebit = this.generateKodeAkun(
+      'debit',
+      newPenjualan.jenis_transaksi,
+    );
     const akunPenjualan: NewAkunDTO[] = [];
     for (const kode of kodeDebit) {
       akunPenjualan.push({
@@ -239,6 +329,6 @@ export default class TransaksiService {
       await this.transaksiRepo.save(transaksi);
       payload.push(transaksi);
     }
-    return payload;
+    return payload.length === 1 ? payload[0] : payload;
   }
 }

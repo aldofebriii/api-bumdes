@@ -12,6 +12,7 @@ import PerusahaanModule from 'src/perusahaan/perusahaan.module';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanModule from 'src/persediaan/persediaan.module';
 import PersediaanService from 'src/persediaan/persediaan.service';
+import Debitur from 'src/utang/debitur.entity';
 
 @Module({
   controllers: [TransaksiController],
@@ -22,6 +23,7 @@ import PersediaanService from 'src/persediaan/persediaan.service';
       ChartOfAccounts,
       Akun,
       Persediaan,
+      Debitur,
     ]),
     HelperModule,
     PerusahaanModule,

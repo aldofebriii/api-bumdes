@@ -9,6 +9,7 @@ import { Akun, ChartOfAccounts } from './akun/akun.entity';
 import PerusahaanModule from './perusahaan/perusahaan.module';
 import TransaksiModule from './transaksi/transaksi.module';
 import PersediaanModule from './persediaan/persediaan.module';
+import Debitur from './utang/debitur.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import PersediaanModule from './persediaan/persediaan.module';
         Persediaan,
         Akun,
         ChartOfAccounts,
+        Debitur,
       ],
       synchronize: true,
       logging: 'all',
