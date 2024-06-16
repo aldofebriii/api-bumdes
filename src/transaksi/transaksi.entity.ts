@@ -1,6 +1,5 @@
 import { Akun } from 'src/akun/akun.entity';
 import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
-import Debitur from 'src/utang/debitur.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

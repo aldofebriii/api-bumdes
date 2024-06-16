@@ -245,27 +245,28 @@ export default class TransaksiService {
         );
       barangs.push({ ...barang, jumlah: bt.jumlah });
     }
-    const map = new Map();
-    map.set('total', 0);
+    let total = 0;
     for (const barang of barangs) {
-      barang.kuantitas--;
-      map.set(
-        'total',
-        map.get('total') + barang.harga_beli_barang * barang.jumlah,
-      );
+      if (barang.kuantitas < barang.jumlah)
+        throw new HttpException(
+          'TransaksiError: kuantitas barang tidak cukup',
+          HttpStatus.NOT_ACCEPTABLE,
+        );
+      barang.kuantitas -= barang.jumlah;
+      total += barang.harga_beli_barang * barang.jumlah;
     }
     this.persediaanRepo.save(barangs);
     const akunHpp = [];
     akunHpp.push(
       {
         posisi: 'debit',
-        jumlah: map.get('total'),
+        jumlah: total,
         kode_akun: NamaKodeAkun.HARGA_POKOK_PENJUALAN,
         keterangan: KeteranganTransaksi.PENJUALAN,
       },
       {
         posisi: 'kredit',
-        jumlah: map.get('total'),
+        jumlah: total,
         kode_akun: NamaKodeAkun.PERSEDIAAN_BARANG_DAGANGAN,
         keterangan: KeteranganTransaksi.PENJUALAN,
       },
