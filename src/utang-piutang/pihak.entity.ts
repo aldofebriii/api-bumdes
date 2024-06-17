@@ -7,19 +7,30 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export type StatusPihak = 'kreditur' | 'debitur';
+
 @Entity()
-export default class Debitur {
+export default class Pihak {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  nama_debitur: string;
+  nama: string;
 
   @Column('timestamp')
   jatuh_tempo_awal: string;
 
   @Column('timestamp')
   jatuh_tempo_akhir: string;
+
+  /**
+   * @abstract kreditur mengarah pada penerima utang dan debitur pemberi utang.
+   */
+  @Column()
+  status: StatusPihak;
+
+  @Column('double')
+  jumlah: number;
 
   @OneToOne(() => Transaksi)
   @JoinColumn()

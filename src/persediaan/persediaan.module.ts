@@ -7,6 +7,7 @@ import Persediaan from './persediaan.entity';
 import PersediaanController from './persediaan.controller';
 
 @Module({
+  exports: [TypeOrmModule],
   controllers: [PersediaanController],
   imports: [PerusahaanModule, TypeOrmModule.forFeature([Persediaan])],
   providers: [PerusahaanService, PersediaanService],

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { And, Between, Repository } from 'typeorm';
 import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import {
@@ -11,50 +11,50 @@ import {
   NewBebanDTO,
   JenisTransaksi,
   NewUtangDTO,
+  NewModalDTO,
 } from './transaksi.controller';
-import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import HelperService from 'src/helper/helper.service';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanService from 'src/persediaan/persediaan.service';
-import Debitur from 'src/utang/debitur.entity';
+import PihakService from 'src/utang-piutang/pihak.service';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
   HPP = 'HPP',
 }
 
-enum NamaKodeAkun {
+export enum NamaKodeAkun {
   KAS_TUNAI = '1.1.01.01',
   PIUTANG_USAHA = '1.1.03.01',
-  PENDAPATAN_TIKET = '4.1.01.01',
+  PENDAPATAN_PENJUALAN_DAGANGAN = '4.2.01.91',
   PERSEDIAAN_BARANG_DAGANGAN = '1.1.05.01',
   HARGA_POKOK_PENJUALAN = '5.1.01.01',
   UTANG_JK_PENDEK = '2.1.05.01',
   UTANG_JK_PANJANG = '2.2.02.01',
+  SETORAN_MODAL = '3.1.01.01',
 }
 
 type BarangTransaksi = { jumlah: number } & Persediaan;
 
 @Injectable()
 export default class TransaksiService {
+  private PAGE_SIZE = 50;
   constructor(
     @InjectRepository(Transaksi)
     private transaksiRepo: Repository<Transaksi>,
     @InjectRepository(Akun)
     private akunRepo: Repository<Akun>,
-    @InjectRepository(Perusahaan)
-    private perusahaanRepo: Repository<Perusahaan>,
+
     @InjectRepository(ChartOfAccounts)
     private coaRepo: Repository<ChartOfAccounts>,
     @InjectRepository(Persediaan)
     private persediaanRepo: Repository<Persediaan>,
-    @InjectRepository(Debitur)
-    private debiturRepo: Repository<Debitur>,
 
     private persediaanService: PersediaanService,
     private perusahaanService: PerusahaanService,
     private helperService: HelperService,
+    private pihakService: PihakService,
   ) {}
 
   private generateKodeAkun(
@@ -80,12 +80,140 @@ export default class TransaksiService {
     return listKode;
   }
 
-  async generateAkunUtang(newUtang: NewUtangDTO) {
-    const debitur = new Debitur();
-    debitur.nama_debitur = newUtang.nama_debitur;
-    debitur.jatuh_tempo_awal = newUtang.jatuh_tempo_awal;
-    debitur.jatuh_tempo_akhir = newUtang.jatuh_tempo_akhir;
+  private dateFilter(date: { start: string; end: string }) {
+    const dateQuery =
+      this.helperService.validationYYYYMMDD(date.start) &&
+      this.helperService.validationYYYYMMDD(date.end)
+        ? And(Between(date.start, date.end))
+        : undefined;
+    return dateQuery;
+  }
+  async detailBukuBesar(
+    perusahaanId: number,
+    kodeAkun: string,
+    date: {
+      start: string;
+      end: string;
+    },
+  ) {
+    const akunBukuBesar = await this.akunRepo.find({
+      relations: {
+        transaksi: {
+          perusahaan: true,
+        },
+        kode_akun: true,
+      },
+      where: {
+        kode_akun: {
+          kode: kodeAkun,
+        },
+        transaksi: {
+          perusahaan: {
+            id: perusahaanId,
+          },
+          tanggal: this.dateFilter(date),
+        },
+      },
+    });
+    return akunBukuBesar;
+  }
 
+  async getNeracaSaldo(
+    perusahaanId: number,
+    date: {
+      start: string;
+      end: string;
+    },
+  ) {
+    const dateFilter = this.dateFilter(date);
+    let rekapanQuery = this.akunRepo
+      .createQueryBuilder('akun')
+      .leftJoinAndSelect('akun.kode_akun', 'coa')
+      .leftJoinAndSelect(
+        'akun.transaksi',
+        'transaksi',
+        'transaksi.perusahaanId = :perusahaanId',
+        {
+          perusahaanId,
+        },
+      )
+      .select(
+        'akun.kodeAkunKode as kode, coa.nama_akun nama, akun.posisi, SUM(akun.jumlah) total',
+      )
+      .groupBy('akun.kodeAkunKode, akun.posisi');
+    if (dateFilter) {
+      rekapanQuery = rekapanQuery.where({
+        transaksi: {
+          tanggal: dateFilter,
+        },
+      });
+    }
+    return await rekapanQuery.getRawMany();
+  }
+
+  async getAll(
+    p: number,
+    relations: {
+      akun: boolean;
+      perusahaan: boolean;
+    },
+    sort: {
+      tanggal: 'ASC' | 'DESC';
+    },
+    perusahaanId: number,
+    date?: {
+      start: string;
+      end: string;
+    },
+  ) {
+    const transaksi = await this.transaksiRepo.find({
+      relations: {
+        akun: relations.akun,
+        perusahaan: relations.perusahaan,
+      },
+      take: this.PAGE_SIZE,
+      skip: (p - 1) * this.PAGE_SIZE,
+      order: {
+        tanggal: sort.tanggal,
+      },
+      where: {
+        perusahaan: {
+          id: perusahaanId,
+        },
+        tanggal: this.dateFilter(date),
+      },
+    });
+    return transaksi;
+  }
+
+  async generateTransaksiModal(newModal: NewModalDTO) {
+    const akunModal: NewAkunDTO[] = [
+      {
+        kode_akun: NamaKodeAkun.KAS_TUNAI,
+        posisi: 'debit',
+        jumlah: newModal.jumlah,
+        keterangan: newModal.keterangan,
+      },
+      {
+        kode_akun: newModal.kode_akun,
+        posisi: 'kredit',
+        jumlah: newModal.jumlah,
+        keterangan: newModal.keterangan,
+      },
+    ];
+
+    return await this.createNew([
+      {
+        akun: akunModal,
+        keterangan: newModal.keterangan,
+        nomor: newModal.nomor,
+        perusahaan_id: newModal.perusahaan_id,
+        tanggal: newModal.tanggal,
+      },
+    ]);
+  }
+
+  async generateAkunUtang(newUtang: NewUtangDTO) {
     const akunUtang: NewAkunDTO[] = [
       {
         posisi: 'debit',
@@ -115,8 +243,16 @@ export default class TransaksiService {
         tanggal: newUtang.tanggal,
       },
     ]);
-    debitur.transaksi = utang;
-    await this.debiturRepo.save(debitur);
+    await this.pihakService.createNew(
+      {
+        nama: newUtang.nama_debitur,
+        jatuh_tempo_awal: newUtang.jatuh_tempo_awal,
+        jatuh_tempo_akhir: newUtang.jatuh_tempo_akhir,
+        status: 'debitur',
+        jumlah: utang.jumlah,
+      },
+      utang,
+    );
     return utang;
   }
 
@@ -233,7 +369,7 @@ export default class TransaksiService {
       posisi: 'kredit',
       jumlah: newPenjualan.jumlah_tunai + newPenjualan.jumlah_non_tunai,
       keterangan: KeteranganTransaksi.PENJUALAN,
-      kode_akun: NamaKodeAkun.PENDAPATAN_TIKET,
+      kode_akun: NamaKodeAkun.PENDAPATAN_PENJUALAN_DAGANGAN,
     });
     const barangs: BarangTransaksi[] = [];
     for (const bt of newPenjualan.barang_terjual) {
@@ -289,7 +425,7 @@ export default class TransaksiService {
     return map.get('debit');
   }
 
-  async createNew(newTransaksiList: NewTransaksiDTO[]) {
+  async createNew(newTransaksiList: NewTransaksiDTO[]): Promise<Transaksi> {
     const payload = [];
     for (const newTransaksi of newTransaksiList) {
       const totalTransaksi = this.validasiAkun(newTransaksi);

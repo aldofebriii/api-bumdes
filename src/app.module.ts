@@ -9,7 +9,8 @@ import { Akun, ChartOfAccounts } from './akun/akun.entity';
 import PerusahaanModule from './perusahaan/perusahaan.module';
 import TransaksiModule from './transaksi/transaksi.module';
 import PersediaanModule from './persediaan/persediaan.module';
-import Debitur from './utang/debitur.entity';
+import Pihak from './utang-piutang/pihak.entity';
+import PihakModule from './utang-piutang/pihak.module';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import Debitur from './utang/debitur.entity';
         Persediaan,
         Akun,
         ChartOfAccounts,
-        Debitur,
+        Pihak,
       ],
       synchronize: true,
       logging: 'all',
@@ -35,6 +36,7 @@ import Debitur from './utang/debitur.entity';
     PerusahaanModule,
     TransaksiModule,
     PersediaanModule,
+    PihakModule,
   ],
   controllers: [AppController],
   providers: [AppService],

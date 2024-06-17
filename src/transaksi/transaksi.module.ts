@@ -12,18 +12,18 @@ import PerusahaanModule from 'src/perusahaan/perusahaan.module';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanModule from 'src/persediaan/persediaan.module';
 import PersediaanService from 'src/persediaan/persediaan.service';
-import Debitur from 'src/utang/debitur.entity';
+import Pihak from 'src/utang-piutang/pihak.entity';
+import PihakService from 'src/utang-piutang/pihak.service';
 
 @Module({
   controllers: [TransaksiController],
   imports: [
     TypeOrmModule.forFeature([
       Transaksi,
-      Perusahaan,
       ChartOfAccounts,
       Akun,
       Persediaan,
-      Debitur,
+      Pihak,
     ]),
     HelperModule,
     PerusahaanModule,
@@ -35,6 +35,7 @@ import Debitur from 'src/utang/debitur.entity';
     HelperService,
     PerusahaanService,
     PersediaanService,
+    PihakService,
   ],
 })
 export default class TransaksiModule {}
