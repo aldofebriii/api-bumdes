@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Transaksi from './transaksi.entity';
-import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import TransaksiController from './transaksi.controller';
 import TransaksiService from './transaksi.service';
