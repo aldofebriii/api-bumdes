@@ -111,6 +111,7 @@ export default class TransaksiController {
     @Query('end_date') endDate: string,
     @Res() res: Response,
   ) {
+    console.log(kodeAkun)
     return res
       .status(200)
       .json(
