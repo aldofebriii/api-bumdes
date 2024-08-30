@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { And, Between, Repository } from 'typeorm';
+import { And, Between, Like, Repository } from 'typeorm';
 import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import {
@@ -88,6 +88,7 @@ export default class TransaksiService {
         : undefined;
     return dateQuery;
   }
+
   async detailBukuBesar(
     perusahaanId: number,
     kodeAkun: string,
@@ -116,6 +117,10 @@ export default class TransaksiService {
       },
     });
     return akunBukuBesar;
+  }
+
+  async fetchAkunBeban() {
+    return await this.coaRepo.findBy({kode:Like("6%")})
   }
 
   async getNeracaSaldo(

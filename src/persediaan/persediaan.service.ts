@@ -35,4 +35,9 @@ export default class PersediaanService {
     await this.persediaanRepo.save(persediaan);
     return persediaan;
   }
+
+  async fetchPersediaan(perusahaanId: number) {
+    const persediaan = await this.persediaanRepo.findBy({perusahaan: {id: perusahaanId}});
+    return persediaan;
+  }
 }

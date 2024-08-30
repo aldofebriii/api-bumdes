@@ -104,6 +104,15 @@ export default class TransaksiController {
     private pihakService: PihakService,
   ) {}
 
+  @Get('akun-beban')
+  async akunBeban(@Res() res: Response) {
+    return res
+      .status(200)
+      .json(
+        await this.transaksiService.fetchAkunBeban()
+      ) 
+  }
+
   @Get('buku-besar/:kode_akun')
   async akunBukuBesar(
     @Param('kode_akun') kodeAkun: string,
@@ -111,7 +120,6 @@ export default class TransaksiController {
     @Query('end_date') endDate: string,
     @Res() res: Response,
   ) {
-    console.log(kodeAkun)
     return res
       .status(200)
       .json(
