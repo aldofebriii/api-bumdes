@@ -170,7 +170,7 @@ export default class TransaksiService {
   ) {
     const transaksi = await this.transaksiRepo.find({
       relations: {
-        akun: relations.akun,
+        akun: { kode_akun: true },
         perusahaan: relations.perusahaan,
       },
       take: this.PAGE_SIZE,
