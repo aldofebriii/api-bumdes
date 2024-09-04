@@ -11,90 +11,13 @@ import {
 import TransaksiService, { NamaKodeAkun } from './transaksi.service';
 import { Response } from 'express';
 import { KeteranganTransaksi } from './transaksi.service';
-import { NewPersediaanDTO } from 'src/persediaan/persediaan.controller';
 import PihakService from 'src/utang-piutang/pihak.service';
-
-export type JenisTransaksi = 'tunai' | 'semi-tunai' | 'non-tunai';
-
-export interface NewAkunDTO {
-  id?: number;
-  kode_akun: string;
-  posisi: 'debit' | 'kredit';
-  jumlah: number;
-  keterangan: string;
-}
-
-export interface NewTransaksiDTO {
-  perusahaan_id: number;
-  tanggal: string; //String Formatted Date
-  nomor: number;
-  keterangan: string;
-  akun: NewAkunDTO[];
-}
-
-export interface TransaksiBarangDTO {
-  id: number;
-  jumlah: number;
-  new?: NewPersediaanDTO;
-}
-
-export interface NewPenjualanDTO {
-  perusahaan_id: number;
-  tanggal: string;
-  nomor: number;
-  keterangan: string;
-  jenis_transaksi: JenisTransaksi;
-  barang_terjual: TransaksiBarangDTO[];
-  jumlah_tunai: number;
-  jumlah_non_tunai: number;
-  kreditur?: {
-    nama: string;
-    jatuh_tempo_awal: string;
-    jatuh_tempo_akhir: string;
-  };
-}
-
-export interface NewPembelianDTO {
-  perusahaan_id: number;
-  tanggal: string;
-  nomor: number;
-  keterangan: string;
-  jenis_transaksi: JenisTransaksi;
-  barang_dibeli: TransaksiBarangDTO[];
-  uang_muka: number;
-}
-
-export interface NewBebanDTO {
-  kode_akun: string;
-  perusahaan_id: number;
-  tanggal: string;
-  nomor: number;
-  keterangan: string;
-  jenis_transaksi: JenisTransaksi;
-  uang_muka: number;
-  jumlah: number;
-}
-
-export interface NewUtangDTO {
-  jangka_waktu: 'pendek' | 'panjang';
-  perusahaan_id: number;
-  tanggal: string;
-  nomor: number;
-  keterangan: string;
-  nama_debitur: string;
-  jumlah: number;
-  jatuh_tempo_awal: string;
-  jatuh_tempo_akhir: string;
-}
-
-export interface NewModalDTO {
-  perusahaan_id: number;
-  tanggal: string;
-  nomor: number;
-  keterangan: string;
-  kode_akun: string;
-  jumlah: number;
-}
+import { NewTransaksiDTO } from 'src/dtos/transaksi/new-transaksi.dto';
+import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
+import { NewModalDTO } from 'src/dtos/transaksi/new-modal.dto';
+import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
+import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
+import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 
 @Controller('transaksi')
 export default class TransaksiController {
@@ -106,11 +29,7 @@ export default class TransaksiController {
 
   @Get('akun-beban')
   async akunBeban(@Res() res: Response) {
-    return res
-      .status(200)
-      .json(
-        await this.transaksiService.fetchAkunBeban()
-      ) 
+    return res.status(200).json(await this.transaksiService.fetchAkunBeban());
   }
 
   @Get('buku-besar/:kode_akun')
@@ -249,6 +168,6 @@ export default class TransaksiController {
   @Post()
   async create(@Body() newTransaksi: NewTransaksiDTO, @Res() res: Response) {
     const transaksi = await this.transaksiService.createNew([newTransaksi]);
-    return res.status(201).json(transaksi[0]);
+    return res.status(201).json(transaksi);
   }
 }

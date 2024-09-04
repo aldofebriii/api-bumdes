@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { NewPerusahaanDTO } from './perusahaan.controller';
+import { NewPerusahaanDTO } from 'src/dtos/perusahaan/new-perusahaan.dto';
 import { Perusahaan, Pimpinan } from './perusahaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

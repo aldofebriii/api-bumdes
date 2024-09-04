@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { NewPersediaanDTO } from './persediaan.controller';
+import { NewPersediaanDTO } from 'src/dtos/persediaan/new-persediaan.dto';
 import { Repository } from 'typeorm';
 import Persediaan from './persediaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -37,7 +37,9 @@ export default class PersediaanService {
   }
 
   async fetchPersediaan(perusahaanId: number) {
-    const persediaan = await this.persediaanRepo.findBy({perusahaan: {id: perusahaanId}});
+    const persediaan = await this.persediaanRepo.findBy({
+      perusahaan: { id: perusahaanId },
+    });
     return persediaan;
   }
 }

@@ -3,21 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { And, Between, Like, Repository } from 'typeorm';
 import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
-import {
-  NewPenjualanDTO,
-  NewTransaksiDTO,
-  NewAkunDTO,
-  NewPembelianDTO,
-  NewBebanDTO,
-  JenisTransaksi,
-  NewUtangDTO,
-  NewModalDTO,
-} from './transaksi.controller';
 import HelperService from 'src/helper/helper.service';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanService from 'src/persediaan/persediaan.service';
 import PihakService from 'src/utang-piutang/pihak.service';
+import { JenisTransaksi, NewTransaksiDTO } from 'src/dtos/transaksi/new-transaksi.dto';
+import { NewModalDTO } from 'src/dtos/transaksi/new-modal.dto';
+import { NewAkunDTO } from 'src/dtos/transaksi/new-akun.dto';
+import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
+import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
+import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
+import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -471,6 +468,6 @@ export default class TransaksiService {
       await this.transaksiRepo.save(transaksi);
       payload.push(transaksi);
     }
-    return payload.length === 1 ? payload[0] : payload;
+    return payload.length   === 1 ? payload[0] : payload;
   }
 }

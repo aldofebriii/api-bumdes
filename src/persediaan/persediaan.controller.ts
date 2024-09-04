@@ -1,14 +1,7 @@
 import { Controller, Get, Post, Body, Res } from '@nestjs/common';
 import PersediaanService from './persediaan.service';
 import { Response } from 'express';
-
-export interface NewPersediaanDTO {
-  sku: string;
-  nama_barang: string;
-  kuantitas: number;
-  harga_beli_barang: number;
-  perusahaan_id: number;
-}
+import { NewPersediaanDTO } from 'src/dtos/persediaan/new-persediaan.dto';
 
 @Controller('persediaan')
 export default class PersediaanController {

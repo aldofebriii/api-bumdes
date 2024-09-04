@@ -1,15 +1,7 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import PerusahaanService from './perusahaan.service';
 import { Response } from 'express';
-
-export interface NewPerusahaanDTO {
-  nama: string;
-  alamat: string;
-  email: string;
-  kata_sandi: string;
-  nama_pimpinan: string;
-  alamat_pimpinan: string;
-}
+import { NewPerusahaanDTO } from 'src/dtos/perusahaan/new-perusahaan.dto';
 
 @Controller('perusahaan')
 export default class PerusahaanController {

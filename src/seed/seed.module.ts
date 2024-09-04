@@ -10,7 +10,7 @@ import { Perusahaan, Pimpinan } from 'src/perusahaan/perusahaan.entity';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import Transaksi from 'src/transaksi/transaksi.entity';
 import Pihak from 'src/utang-piutang/pihak.entity';
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot(),
