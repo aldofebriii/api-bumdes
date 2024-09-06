@@ -3,6 +3,7 @@ import { NewPerusahaanDTO } from 'src/dtos/perusahaan/new-perusahaan.dto';
 import { Perusahaan, Pimpinan } from './perusahaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export default class PerusahaanService {
   constructor(
@@ -45,14 +46,35 @@ export default class PerusahaanService {
     perusahaan.nama = newPerusahaan.nama;
     perusahaan.alamat = newPerusahaan.alamat;
     perusahaan.email = newPerusahaan.email;
-    perusahaan.kata_sandi = newPerusahaan.kata_sandi;
     perusahaan.pimpinan = pimpinan;
+    /**
+     * async process to hash password
+     */
+    bcrypt.genSalt(8, (err, salt) => {
+      if (err) {
+        return console.error(err.message);
+      }
+      bcrypt
+        .hash(newPerusahaan.kata_sandi, salt)
+        .then((value) => {
+          perusahaan.kata_sandi = value;
+          this.perusahaanRepo.save(perusahaan);
+        })
+        .catch((err) => console.error(err.message));
+    });
 
-    this.perusahaanRepo.save(perusahaan);
     return perusahaan;
   }
 
-  async validasiPerusahaan(perusahaanId: number) {
-    return await this.perusahaanRepo.findOneBy({ id: perusahaanId });
+  validasiPerusahaan(perusahaanId: number) {
+    return this.perusahaanRepo.findOneBy({ id: perusahaanId });
+  }
+
+  findOneByEmail(email: string) {
+    return this.perusahaanRepo.findOneBy({ email });
+  }
+
+  findOneById(id: number) {
+    return this.perusahaanRepo.findOneBy({ id });
   }
 }

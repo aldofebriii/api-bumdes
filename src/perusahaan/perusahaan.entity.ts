@@ -57,9 +57,9 @@ export class Perusahaan {
   @JoinColumn()
   pimpinan: Pimpinan;
 
-  @OneToMany(() => Transaksi, (t) => t.perusahaan)
+  @OneToMany(() => Transaksi, (t) => t.perusahaan, { onDelete: 'CASCADE' })
   transaksi: Transaksi[];
 
-  @OneToMany(() => Persediaan, (p) => p.perusahaan)
+  @OneToMany(() => Persediaan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
   persediaan: Persediaan[];
 }
