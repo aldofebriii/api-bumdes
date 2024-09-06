@@ -32,6 +32,26 @@ export default class TransaksiController {
     return res.status(200).json(await this.transaksiService.fetchAkunBeban());
   }
 
+  @Get()
+  async fetchTransaksi(
+    @Param('kode_akun') kodeAkun: string,
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+    @Res() res: Response
+  ) {
+    return res
+      .status(200)
+      .json(
+        await this.transaksiService.getAll(
+          1,
+          { akun:true, perusahaan: false },
+          { tanggal: "ASC" },
+          this.DUMMY_PERUSAHAAN_ID,
+          { start: startDate, end: endDate }
+        )
+      );
+  }
+
   @Get('buku-besar/:kode_akun')
   async akunBukuBesar(
     @Param('kode_akun') kodeAkun: string,
