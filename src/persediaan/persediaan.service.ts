@@ -4,29 +4,24 @@ import { Repository } from 'typeorm';
 import Persediaan from './persediaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import PerusahaanService from 'src/perusahaan/perusahaan.service';
+import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
 
 @Injectable()
 export default class PersediaanService {
   constructor(
     @InjectRepository(Persediaan)
     private persediaanRepo: Repository<Persediaan>,
-    private perusahaanService: PerusahaanService,
+    private perusahaanProvider: CurrentPerusahaanProvider,
   ) {}
 
   async createOrEdit(newPersediaan: NewPersediaanDTO, persediaanId?: number) {
-    const perusahaan = await this.perusahaanService.validasiPerusahaan(
-      newPersediaan.perusahaan_id,
-    );
-    if (!perusahaan)
-      throw new HttpException('invalid_perusahaan_id', HttpStatus.BAD_REQUEST);
-
     let persediaan: Persediaan;
     if (persediaanId) {
       persediaan = await this.persediaanRepo.findOneBy({ id: persediaanId });
     } else {
       persediaan = new Persediaan();
     }
-    persediaan.perusahaan = perusahaan;
+    persediaan.perusahaan = this.perusahaanProvider.getPerusahaan();
     persediaan.sku = newPersediaan.sku;
     persediaan.nama_barang = newPersediaan.nama_barang;
     persediaan.kuantitas = newPersediaan.kuantitas;
@@ -36,7 +31,8 @@ export default class PersediaanService {
     return persediaan;
   }
 
-  async fetchPersediaan(perusahaanId: number) {
+  async fetchPersediaan() {
+    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
     const persediaan = await this.persediaanRepo.findBy({
       perusahaan: { id: perusahaanId },
     });

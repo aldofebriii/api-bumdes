@@ -22,9 +22,6 @@ export function IsDebitOrKredit() {
 }
 
 export class NewAkunDTO {
-  @IsNumber()
-  @IsOptional()
-  id?: number;
   @IsString()
   kode_akun: string;
   @IsDebitOrKredit()

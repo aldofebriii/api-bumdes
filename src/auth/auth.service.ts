@@ -13,6 +13,4 @@ export class AuthService {
     if(!valid) throw new HttpException('email / password salah', HttpStatus.UNAUTHORIZED);
     return perusahaan;
   }
-  async signout() {}
-  async refresh() {}
 }

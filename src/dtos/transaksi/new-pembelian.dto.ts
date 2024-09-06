@@ -11,8 +11,6 @@ import { TransaksiBarangDTO } from '../persediaan/transaksi-barang.dto';
 import { Type } from 'class-transformer';
 
 export class NewPembelianDTO {
-  @IsNumber()
-  perusahaan_id: number;
   @IsDateString()
   tanggal: string;
   @IsNumber()

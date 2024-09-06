@@ -28,9 +28,6 @@ export function IsValidJenisTransaksi() {
 }
 
 export class NewTransaksiDTO {
-  @IsNumber()
-  @IsOptional()
-  perusahaan_id: number;
   @IsDateString()
   tanggal: string; //String Formatted Date
   @IsNumber()

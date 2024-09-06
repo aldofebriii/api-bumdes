@@ -47,9 +47,6 @@ export class NewUtangDTO {
   @IsValidJangaWaktu()
   jangka_waktu: 'pendek' | 'panjang';
 
-  @IsNumber()
-  perusahaan_id: number;
-
   @IsDateString()
   tanggal: string;
 

@@ -21,9 +21,6 @@ export class KrediturTransaksi {
 }
 
 export class NewPenjualanDTO {
-  @IsNumber()
-  @IsOptional()
-  perusahaan_id: number;
 
   @IsDateString()
   tanggal: string;

@@ -29,9 +29,6 @@ export class NewBebanDTO {
   @IsString()
   kode_akun: string;
 
-  @IsNumber()
-  perusahaan_id: number;
-
   @IsDateString()
   tanggal: string;
 

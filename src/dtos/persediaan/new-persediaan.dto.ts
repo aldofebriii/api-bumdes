@@ -10,6 +10,4 @@ export class NewPersediaanDTO {
   kuantitas: number;
   @IsNumber()
   harga_beli_barang: number;
-  @IsNumber()
-  perusahaan_id: number;
 }

@@ -13,6 +13,8 @@ import PersediaanModule from 'src/persediaan/persediaan.module';
 import PersediaanService from 'src/persediaan/persediaan.service';
 import Pihak from 'src/utang-piutang/pihak.entity';
 import PihakService from 'src/utang-piutang/pihak.service';
+import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 
 @Module({
   controllers: [TransaksiController],
@@ -25,16 +27,17 @@ import PihakService from 'src/utang-piutang/pihak.service';
       Pihak,
     ]),
     HelperModule,
-    PerusahaanModule,
     PersediaanModule,
+    PerusahaanModule,
   ],
   exports: [TypeOrmModule, HelperService],
   providers: [
     TransaksiService,
     HelperService,
-    PerusahaanService,
     PersediaanService,
     PihakService,
+    CurrentUserInterceptor,
+    CurrentPerusahaanProvider,
   ],
 })
 export default class TransaksiModule {}

@@ -7,6 +7,8 @@ import {
   Query,
   HttpException,
   Param,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import TransaksiService, { NamaKodeAkun } from './transaksi.service';
 import { Response } from 'express';
@@ -18,149 +20,130 @@ import { NewModalDTO } from 'src/dtos/transaksi/new-modal.dto';
 import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
 import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
+import { PerusahaanGuard } from 'src/guard/perusahaan.guard';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
+import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 
+@UseInterceptors(CurrentUserInterceptor)
+@UseGuards(PerusahaanGuard)
 @Controller('transaksi')
 export default class TransaksiController {
-  private DUMMY_PERUSAHAAN_ID = 1;
   constructor(
     private transaksiService: TransaksiService,
     private pihakService: PihakService,
   ) {}
 
   @Get('akun-beban')
-  async akunBeban(@Res() res: Response) {
-    return res.status(200).json(await this.transaksiService.fetchAkunBeban());
+  akunBeban() {
+    return this.transaksiService.fetchAkunBeban();
   }
 
   @Get()
-  async fetchTransaksi(
+  fetchTransaksi(
     @Param('kode_akun') kodeAkun: string,
     @Query('start_date') startDate: string,
     @Query('end_date') endDate: string,
-    @Res() res: Response
   ) {
-    return res
-      .status(200)
-      .json(
-        await this.transaksiService.getAll(
-          1,
-          { akun:true, perusahaan: false },
-          { tanggal: "ASC" },
-          this.DUMMY_PERUSAHAAN_ID,
-          { start: startDate, end: endDate }
-        )
-      );
-  }
-
-  @Get('buku-besar/:kode_akun')
-  async akunBukuBesar(
-    @Param('kode_akun') kodeAkun: string,
-    @Query('start_date') startDate: string,
-    @Query('end_date') endDate: string,
-    @Res() res: Response,
-  ) {
-    return res
-      .status(200)
-      .json(
-        await this.transaksiService.detailBukuBesar(
-          this.DUMMY_PERUSAHAAN_ID,
-          kodeAkun,
-          { start: startDate, end: endDate },
-        ),
-      );
-  }
-
-  @Get('/neraca-saldo')
-  async neracaSaldo(
-    @Query('start_date') startDate: string,
-    @Query('end_date') endDate: string,
-    @Res() res: Response,
-  ) {
-    return res.status(200).json(
-      await this.transaksiService.getNeracaSaldo(this.DUMMY_PERUSAHAAN_ID, {
-        start: startDate,
-        end: endDate,
-      }),
+    return this.transaksiService.getAll(
+      1,
+      { akun: true, perusahaan: false },
+      { tanggal: 'ASC' },
+      { start: startDate, end: endDate },
     );
   }
 
-  @Get('/ledger')
-  async ledger(
+  @Get('buku-besar/:kode_akun')
+  akunBukuBesar(
+    /**
+     * @todo harus ada validasi terhadap param menggunakan pipe baik start_date maupun end_date
+     */
+    @Param('kode_akun') kodeAkun: string,
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ) {
+    return this.transaksiService.detailBukuBesar(kodeAkun, {
+      start: startDate,
+      end: endDate,
+    });
+  }
+
+  @Get('neraca-saldo')
+  neracaSaldo(
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ) {
+    return this.transaksiService.getNeracaSaldo({
+      start: startDate,
+      end: endDate,
+    });
+  }
+
+  @Get('ledger')
+  ledger(
     @Query('p') p: string,
     @Query('start_date') startDate: string,
     @Query('end_date') endDate: string,
-    @Res() res: Response,
+    @CurrentUser() user: Perusahaan,
   ) {
+    console.log(user);
     /**
      * @todo this need to be change based on user authencation.
      */
     const page = parseInt(p || '1');
     if (isNaN(page)) throw new HttpException('Invalid required query', 400);
-    return res.status(200).json(
-      await this.transaksiService.getAll(
-        page,
-        {
-          akun: true,
-          perusahaan: true,
-        },
-        {
-          tanggal: 'DESC',
-        },
-        this.DUMMY_PERUSAHAAN_ID,
-        {
-          start: startDate,
-          end: endDate,
-        },
-      ),
+    return this.transaksiService.getAll(
+      page,
+      {
+        akun: true,
+        perusahaan: true,
+      },
+      {
+        tanggal: 'DESC',
+      },
+      {
+        start: startDate,
+        end: endDate,
+      },
     );
   }
   @Post('modal')
-  async modal(@Body() newModal: NewModalDTO, @Res() res: Response) {
-    return res
-      .status(201)
-      .json(await this.transaksiService.generateTransaksiModal(newModal));
+  modal(@Body() newModal: NewModalDTO) {
+    return this.transaksiService.generateTransaksiModal(newModal);
   }
 
   @Post('utang')
-  async utang(@Body() newUtang: NewUtangDTO, @Res() res: Response) {
-    return res
-      .status(201)
-      .json(await this.transaksiService.generateAkunUtang(newUtang));
+  utang(@Body() newUtang: NewUtangDTO) {
+    return this.transaksiService.generateAkunUtang(newUtang);
   }
 
   @Post('beban-operasional')
-  async pembebanan(@Body() newBeban: NewBebanDTO, @Res() res: Response) {
-    return res
-      .status(201)
-      .json(await this.transaksiService.generateAkunPembebanan(newBeban));
+  pembebanan(@Body() newBeban: NewBebanDTO) {
+    return this.transaksiService.generateAkunPembebanan(newBeban);
   }
 
   @Post('pembelian')
-  async pembelian(@Body() newPembelian: NewPembelianDTO, @Res() res: Response) {
-    return res
-      .status(201)
-      .json(await this.transaksiService.generateAkunPembelian(newPembelian));
+  pembelian(@Body() newPembelian: NewPembelianDTO) {
+    return this.transaksiService.generateAkunPembelian(newPembelian);
   }
   /**
    * @description Method for generating sells and also generated the person who is having a debt to company.
    * @returns Transaksi[] which 0 belong to sell and 1 belong tu HPP
    */
   @Post('penjualan')
-  async penjualan(@Body() newPenjualan: NewPenjualanDTO, @Res() res: Response) {
+  async penjualan(@Body() newPenjualan: NewPenjualanDTO) {
     const { akunPenjualan, akunHpp } =
       await this.transaksiService.generateAkunPenjualan(newPenjualan);
     const transaksiPenjualan: NewTransaksiDTO = {
       nomor: newPenjualan.nomor,
       keterangan: KeteranganTransaksi.PENJUALAN,
       tanggal: newPenjualan.tanggal,
-      perusahaan_id: newPenjualan.perusahaan_id,
       akun: akunPenjualan,
     };
     const transaksiHpp: NewTransaksiDTO = {
       nomor: newPenjualan.nomor,
       keterangan: KeteranganTransaksi.HPP,
       tanggal: newPenjualan.tanggal,
-      perusahaan_id: newPenjualan.perusahaan_id,
       akun: akunHpp,
     };
     const transaksi = await this.transaksiService.createNew([
@@ -182,12 +165,14 @@ export default class TransaksiController {
         transaksi[0], //Zero index belong to transaksiPenjualan
       );
     }
-    return res.status(201).json(transaksi);
+    return transaksi;
   }
 
   @Post()
-  async create(@Body() newTransaksi: NewTransaksiDTO, @Res() res: Response) {
-    const transaksi = await this.transaksiService.createNew([newTransaksi]);
-    return res.status(201).json(transaksi);
+  create(
+    @Body() newTransaksi: NewTransaksiDTO,
+    @CurrentUser() user: Perusahaan,
+  ) {
+    return this.transaksiService.createNew([newTransaksi]);
   }
 }

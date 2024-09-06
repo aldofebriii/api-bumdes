@@ -5,16 +5,19 @@ import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import HelperService from 'src/helper/helper.service';
 import Persediaan from 'src/persediaan/persediaan.entity';
-import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import PersediaanService from 'src/persediaan/persediaan.service';
 import PihakService from 'src/utang-piutang/pihak.service';
-import { JenisTransaksi, NewTransaksiDTO } from 'src/dtos/transaksi/new-transaksi.dto';
+import {
+  JenisTransaksi,
+  NewTransaksiDTO,
+} from 'src/dtos/transaksi/new-transaksi.dto';
 import { NewModalDTO } from 'src/dtos/transaksi/new-modal.dto';
 import { NewAkunDTO } from 'src/dtos/transaksi/new-akun.dto';
 import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
 import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
+import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -49,9 +52,9 @@ export default class TransaksiService {
     private persediaanRepo: Repository<Persediaan>,
 
     private persediaanService: PersediaanService,
-    private perusahaanService: PerusahaanService,
     private helperService: HelperService,
     private pihakService: PihakService,
+    private perusahaanProvider: CurrentPerusahaanProvider,
   ) {}
 
   private generateKodeAkun(
@@ -87,7 +90,6 @@ export default class TransaksiService {
   }
 
   async detailBukuBesar(
-    perusahaanId: number,
     kodeAkun: string,
     date: {
       start: string;
@@ -107,7 +109,7 @@ export default class TransaksiService {
         },
         transaksi: {
           perusahaan: {
-            id: perusahaanId,
+            id: this.perusahaanProvider.getPerusahaan().id,
           },
           tanggal: this.dateFilter(date),
         },
@@ -117,16 +119,11 @@ export default class TransaksiService {
   }
 
   async fetchAkunBeban() {
-    return await this.coaRepo.findBy({kode:Like("6%")})
+    return await this.coaRepo.findBy({ kode: Like('6%') });
   }
 
-  async getNeracaSaldo(
-    perusahaanId: number,
-    date: {
-      start: string;
-      end: string;
-    },
-  ) {
+  async getNeracaSaldo(date: { start: string; end: string }) {
+    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
     const dateFilter = this.dateFilter(date);
     let rekapanQuery = this.akunRepo
       .createQueryBuilder('akun')
@@ -162,12 +159,12 @@ export default class TransaksiService {
     sort: {
       tanggal: 'ASC' | 'DESC';
     },
-    perusahaanId: number,
     date?: {
       start: string;
       end: string;
     },
   ) {
+    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
     const transaksi = await this.transaksiRepo.find({
       relations: {
         akun: { kode_akun: true },
@@ -209,7 +206,6 @@ export default class TransaksiService {
         akun: akunModal,
         keterangan: newModal.keterangan,
         nomor: newModal.nomor,
-        perusahaan_id: newModal.perusahaan_id,
         tanggal: newModal.tanggal,
       },
     ]);
@@ -239,7 +235,6 @@ export default class TransaksiService {
     const utang = await this.createNew([
       {
         akun: akunUtang,
-        perusahaan_id: newUtang.perusahaan_id,
         keterangan: newUtang.keterangan,
         nomor: newUtang.nomor,
         tanggal: newUtang.tanggal,
@@ -287,7 +282,6 @@ export default class TransaksiService {
         akun: akunPembebanan,
         keterangan: newBeban.keterangan,
         nomor: newBeban.nomor,
-        perusahaan_id: newBeban.perusahaan_id,
         tanggal: newBeban.tanggal,
       },
     ]);
@@ -343,7 +337,6 @@ export default class TransaksiService {
       nomor: newPembelian.nomor,
       keterangan: newPembelian.keterangan,
       tanggal: newPembelian.tanggal,
-      perusahaan_id: newPembelian.perusahaan_id,
       akun: akunPembelian,
     };
     const newTransaksi = await this.createNew([transaksiPembelian]);
@@ -431,14 +424,8 @@ export default class TransaksiService {
     const payload = [];
     for (const newTransaksi of newTransaksiList) {
       const totalTransaksi = this.validasiAkun(newTransaksi);
-      const perusahaan = await this.perusahaanService.validasiPerusahaan(
-        newTransaksi.perusahaan_id,
-      );
-      if (!perusahaan)
-        throw new HttpException('not_found_perusahaan', HttpStatus.NOT_FOUND);
-      //Penggalian data perusahaan;
       const transaksi: Transaksi = new Transaksi();
-      transaksi.perusahaan = perusahaan;
+      transaksi.perusahaan = this.perusahaanProvider.getPerusahaan();
       transaksi.jumlah = totalTransaksi;
       transaksi.keterangan = newTransaksi.keterangan;
       transaksi.nomor = newTransaksi.nomor;
@@ -468,6 +455,6 @@ export default class TransaksiService {
       await this.transaksiRepo.save(transaksi);
       payload.push(transaksi);
     }
-    return payload.length   === 1 ? payload[0] : payload;
+    return payload.length === 1 ? payload[0] : payload;
   }
 }
