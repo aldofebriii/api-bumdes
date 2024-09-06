@@ -14,7 +14,10 @@ async function bootstrap() {
     }),
   );
   app.useGlobalPipes(new ValidationPipe({ forbidNonWhitelisted: true }));
-  app.enableCors();
+  app.enableCors({
+    credentials: process.env.NODE_ENV === 'production',
+    origin: process.env.ORIGIN ? '*' : '',
+  });
   await app.listen(8000);
 }
 bootstrap();
