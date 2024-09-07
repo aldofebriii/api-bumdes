@@ -35,8 +35,12 @@ export default class TransaksiController {
   ) {}
 
   @Get('akun-beban')
-  akunBeban() {
-    return this.transaksiService.fetchAkunBeban();
+  async akunBeban(@Res() res: Response) {
+    return res
+      .status(200)
+      .json(
+        await this.transaksiService.fetchAkunBeban()
+      );
   }
 
   @Get()
@@ -134,26 +138,29 @@ export default class TransaksiController {
   async penjualan(@Body() newPenjualan: NewPenjualanDTO) {
     const { akunPenjualan, akunHpp } =
       await this.transaksiService.generateAkunPenjualan(newPenjualan);
+
     const transaksiPenjualan: NewTransaksiDTO = {
-      nomor: newPenjualan.nomor,
       keterangan: KeteranganTransaksi.PENJUALAN,
       tanggal: newPenjualan.tanggal,
       akun: akunPenjualan,
     };
+
     const transaksiHpp: NewTransaksiDTO = {
-      nomor: newPenjualan.nomor,
       keterangan: KeteranganTransaksi.HPP,
       tanggal: newPenjualan.tanggal,
       akun: akunHpp,
     };
+
     const transaksi = await this.transaksiService.createNew([
       transaksiPenjualan,
       transaksiHpp,
     ]);
+
     if (newPenjualan.jenis_transaksi !== 'tunai') {
       const nominalPiutang = transaksiPenjualan.akun.filter(
         (a) => a.kode_akun === NamaKodeAkun.PIUTANG_USAHA,
       )[0];
+
       await this.pihakService.createNew(
         {
           nama: newPenjualan.kreditur.nama,
@@ -165,7 +172,8 @@ export default class TransaksiController {
         transaksi[0], //Zero index belong to transaksiPenjualan
       );
     }
-    return transaksi;
+
+    return res.status(201).json(transaksi);
   }
 
   @Post()

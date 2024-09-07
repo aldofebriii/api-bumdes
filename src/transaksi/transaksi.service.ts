@@ -17,7 +17,7 @@ import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
 import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
-import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { randomInt } from 'crypto';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -167,7 +167,7 @@ export default class TransaksiService {
     const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
     const transaksi = await this.transaksiRepo.find({
       relations: {
-        akun: { kode_akun: true },
+        akun: { kode_akun: relations.akun },
         perusahaan: relations.perusahaan,
       },
       take: this.PAGE_SIZE,
@@ -205,7 +205,7 @@ export default class TransaksiService {
       {
         akun: akunModal,
         keterangan: newModal.keterangan,
-        nomor: newModal.nomor,
+        perusahaan_id: newModal.perusahaan_id,
         tanggal: newModal.tanggal,
       },
     ]);
@@ -236,7 +236,6 @@ export default class TransaksiService {
       {
         akun: akunUtang,
         keterangan: newUtang.keterangan,
-        nomor: newUtang.nomor,
         tanggal: newUtang.tanggal,
       },
     ]);
@@ -281,7 +280,7 @@ export default class TransaksiService {
       {
         akun: akunPembebanan,
         keterangan: newBeban.keterangan,
-        nomor: newBeban.nomor,
+        perusahaan_id: newBeban.perusahaan_id,
         tanggal: newBeban.tanggal,
       },
     ]);
@@ -334,7 +333,6 @@ export default class TransaksiService {
       kode_akun: NamaKodeAkun.PERSEDIAAN_BARANG_DAGANGAN,
     });
     const transaksiPembelian: NewTransaksiDTO = {
-      nomor: newPembelian.nomor,
       keterangan: newPembelian.keterangan,
       tanggal: newPembelian.tanggal,
       akun: akunPembelian,
@@ -428,7 +426,7 @@ export default class TransaksiService {
       transaksi.perusahaan = this.perusahaanProvider.getPerusahaan();
       transaksi.jumlah = totalTransaksi;
       transaksi.keterangan = newTransaksi.keterangan;
-      transaksi.nomor = newTransaksi.nomor;
+      transaksi.nomor = randomInt(9999999999);
       transaksi.tanggal = this.helperService.parsedIsoStringToDateTime(
         newTransaksi.tanggal,
       );
