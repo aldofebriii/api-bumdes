@@ -30,6 +30,8 @@ export function IsValidJenisTransaksi() {
 export class NewTransaksiDTO {
   @IsDateString()
   tanggal: string; //String Formatted Date
+  @IsNumber()
+  nomor: number;
   @IsString()
   keterangan: string;
   @ValidateNested({ each: true })
