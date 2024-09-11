@@ -16,7 +16,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ forbidNonWhitelisted: true }));
   app.enableCors({
     credentials: process.env.NODE_ENV === 'production',
-    origin: process.env.ORIGIN ? '*' : '',
+    origin: process.env.ORIGIN? process.env.ORIGIN :'*',
   });
   await app.listen(8000);
 }
