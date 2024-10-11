@@ -12,6 +12,7 @@ export default class PerusahaanController {
   constructor(private perusahaanService: PerusahaanService) {}
   @Post()
   async create(@Body() newPerusahaan: NewPerusahaanDTO, @Res() res: Response) {
+    console.log(newPerusahaan);
     const perusahaan = await this.perusahaanService.createOrEdit(newPerusahaan);
     return res.status(201).json(perusahaan);
   }
