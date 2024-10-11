@@ -77,4 +77,21 @@ export default class PerusahaanService {
   findOneById(id: number) {
     return this.perusahaanRepo.findOneBy({ id });
   }
+
+  async getProfile(id: number) {
+    const perusahaan = await this.findOneById(id);
+    const pimpinan = await this.pimpinanRepo.findOneBy({ perusahaan: { id } })
+
+    return {
+      perusahaan: {
+        nama: perusahaan.nama,
+        email: perusahaan.email,
+        alamat: perusahaan.alamat,
+      },
+      pimpinan : {
+        nama: pimpinan.nama,
+        alamat: pimpinan.alamat
+      }
+    }
+  }
 }
