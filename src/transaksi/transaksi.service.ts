@@ -307,6 +307,7 @@ export default class TransaksiService {
           );
         persediaan.kuantitas += bt.jumlah;
         total += bt.jumlah * persediaan.harga_beli_barang;
+        console.log(total);
         await this.persediaanRepo.save(persediaan);
       }
       barangTerbeli.push({ ...persediaan, jumlah: bt.jumlah });
@@ -321,8 +322,8 @@ export default class TransaksiService {
         posisi: 'kredit',
         jumlah:
           kode === NamaKodeAkun.KAS_TUNAI
-            ? newPembelian.uang_muka
-            : total - newPembelian.uang_muka,
+            ? total - newPembelian.uang_muka
+            : newPembelian.uang_muka,
         keterangan: newPembelian.keterangan,
         kode_akun: kode,
       });

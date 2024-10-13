@@ -22,6 +22,6 @@ export default class PerusahaanController {
   @UseGuards(PerusahaanGuard)
   async profile(@CurrentUser() perusahaan: Perusahaan, @Res() res: Response) {
     const profil = await this.perusahaanService.getProfile(perusahaan.id);
-    return res.status(201).json(profil);
+    return res.status(200).json(profil);
   }
 }
