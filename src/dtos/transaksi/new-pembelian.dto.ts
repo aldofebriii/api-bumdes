@@ -13,8 +13,6 @@ import { Type } from 'class-transformer';
 export class NewPembelianDTO {
   @IsDateString()
   tanggal: string;
-  @IsNumber()
-  nomor: number;
   @IsString()
   keterangan: string;
   @IsValidJenisTransaksi()

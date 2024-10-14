@@ -18,6 +18,7 @@ import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
 import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { randomInt } from 'crypto';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -335,7 +336,7 @@ export default class TransaksiService {
       kode_akun: NamaKodeAkun.PERSEDIAAN_BARANG_DAGANGAN,
     });
     const transaksiPembelian: NewTransaksiDTO = {
-      nomor: newPembelian.nomor,
+      nomor: randomInt(999999),
       keterangan: newPembelian.keterangan,
       tanggal: newPembelian.tanggal,
       akun: akunPembelian,
