@@ -24,6 +24,7 @@ import { PerusahaanGuard } from 'src/guard/perusahaan.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
+import { randomInt } from 'crypto';
 
 @UseInterceptors(CurrentUserInterceptor)
 @UseGuards(PerusahaanGuard)
@@ -132,16 +133,17 @@ export default class TransaksiController {
    */
   @Post('penjualan')
   async penjualan(@Body() newPenjualan: NewPenjualanDTO) {
+    const nomorAcak = randomInt(999999);
     const { akunPenjualan, akunHpp } =
       await this.transaksiService.generateAkunPenjualan(newPenjualan);
     const transaksiPenjualan: NewTransaksiDTO = {
-      nomor: newPenjualan.nomor,
+      nomor: nomorAcak,
       keterangan: KeteranganTransaksi.PENJUALAN,
       tanggal: newPenjualan.tanggal,
       akun: akunPenjualan,
     };
     const transaksiHpp: NewTransaksiDTO = {
-      nomor: newPenjualan.nomor,
+      nomor: nomorAcak,
       keterangan: KeteranganTransaksi.HPP,
       tanggal: newPenjualan.tanggal,
       akun: akunHpp,

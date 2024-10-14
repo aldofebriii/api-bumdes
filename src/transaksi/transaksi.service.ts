@@ -282,7 +282,7 @@ export default class TransaksiService {
       {
         akun: akunPembebanan,
         keterangan: newBeban.keterangan,
-        nomor: newBeban.nomor,
+        nomor: randomInt(999999),
         tanggal: newBeban.tanggal,
       },
     ]);

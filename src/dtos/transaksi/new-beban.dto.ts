@@ -32,9 +32,6 @@ export class NewBebanDTO {
   @IsDateString()
   tanggal: string;
 
-  @IsNumber()
-  nomor: number;
-
   @IsString()
   keterangan: string;
 

@@ -24,7 +24,7 @@ export default class PersediaanController {
   }
 
   @Get()
-  getPersediaan(@Res() res: Response) {
-    return this.persediaanService.fetchPersediaan();
+  getPersediaan() {
+    return this.persediaanService.fetchPersediaan()
   }
 }
