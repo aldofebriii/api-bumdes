@@ -92,7 +92,6 @@ export default class TransaksiController {
     @Query('end_date') endDate: string,
     @CurrentUser() user: Perusahaan,
   ) {
-    console.log(user);
     /**
      * @todo this need to be change based on user authencation.
      */
@@ -181,5 +180,16 @@ export default class TransaksiController {
     @CurrentUser() user: Perusahaan,
   ) {
     return this.transaksiService.createNew([newTransaksi]);
+  }
+
+  @Get('/laba-rugi')
+  laba_rugi(
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ) {
+    return this.transaksiService.getLabaRugi({
+      start: startDate,
+      end: endDate
+    });
   }
 }

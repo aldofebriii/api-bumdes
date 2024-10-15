@@ -155,6 +155,59 @@ export default class TransaksiService {
     return await rekapanQuery.getRawMany();
   }
 
+  async getLabaRugi(date: { start: string; end: string }) {
+    const pendapatan = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            nama_akun: Like("Pendapatan%"),
+            posisi_normal: "kredit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+
+    const hpp = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            kode: Like("5%"),
+            posisi_normal: "debit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+
+    const beban = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            nama_akun: Like("Beban%"),
+            posisi_normal: "debit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+
+    return {
+      pendapatan: pendapatan,
+      hpp: hpp,
+      beban: beban
+    };
+  }
+
   async getAll(
     p: number,
     relations: {
@@ -278,7 +331,7 @@ export default class TransaksiService {
         posisi: 'kredit',
         jumlah:
           NamaKodeAkun.KAS_TUNAI === kode
-            ? newBeban.uang_muka
+            ? newBeban.jumlah
             : newBeban.jumlah - newBeban.uang_muka,
       });
     }
