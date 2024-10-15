@@ -278,7 +278,7 @@ export default class TransaksiService {
         posisi: 'kredit',
         jumlah:
           NamaKodeAkun.KAS_TUNAI === kode
-            ? newBeban.uang_muka
+            ? newBeban.jumlah
             : newBeban.jumlah - newBeban.uang_muka,
       });
     }
