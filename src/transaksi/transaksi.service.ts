@@ -123,6 +123,10 @@ export default class TransaksiService {
     return await this.coaRepo.findBy({ kode: Like('6%') });
   }
 
+  async fetchAkunModal() {
+    return await this.coaRepo.findBy({ kode: Like('3%') });
+  }
+
   async getNeracaSaldo(date: { start: string; end: string }) {
     const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
     const dateFilter = this.dateFilter(date);
@@ -206,7 +210,7 @@ export default class TransaksiService {
       {
         akun: akunModal,
         keterangan: newModal.keterangan,
-        nomor: newModal.nomor,
+        nomor: randomInt(999999),
         tanggal: newModal.tanggal,
       },
     ]);

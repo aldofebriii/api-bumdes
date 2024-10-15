@@ -40,6 +40,11 @@ export default class TransaksiController {
     return this.transaksiService.fetchAkunBeban();
   }
 
+  @Get('akun-modal')
+  akunModal() {
+    return this.transaksiService.fetchAkunModal();
+  }
+
   @Get()
   fetchTransaksi(
     @Param('kode_akun') kodeAkun: string,
