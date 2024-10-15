@@ -50,9 +50,6 @@ export class NewUtangDTO {
   @IsDateString()
   tanggal: string;
 
-  @IsNumber()
-  nomor: number;
-
   @IsString()
   keterangan: string;
 

@@ -241,7 +241,7 @@ export default class TransaksiService {
       {
         akun: akunUtang,
         keterangan: newUtang.keterangan,
-        nomor: newUtang.nomor,
+        nomor: randomInt(999999),
         tanggal: newUtang.tanggal,
       },
     ]);
