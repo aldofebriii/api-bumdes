@@ -12,4 +12,6 @@ export interface NewPihakDTO {
 }
 
 @Controller('pihak')
-export default class PihakController {}
+export default class PihakController {
+  
+}
