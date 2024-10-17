@@ -192,4 +192,23 @@ export default class TransaksiController {
       end: endDate
     });
   }
+
+  @Get('/arus-kas')
+  arus_kas(
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ) {
+    return this.transaksiService.getArusKas({
+      start: startDate,
+      end: endDate
+    });
+  }
+
+  @Get('/perubahan-ekuitas')
+  perubahan_ekuitas(
+    @Query('start_date') startDate: string,
+    @Query('end_date') endDate: string,
+  ) {
+    return this.transaksiService.getPerubahanEkuitas({ start: startDate, end: endDate });
+  }
 }

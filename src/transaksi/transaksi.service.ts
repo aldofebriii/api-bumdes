@@ -97,7 +97,7 @@ export default class TransaksiService {
       end: string;
     },
   ) {
-    const akunBukuBesar = await this.akunRepo.find({
+    return await this.akunRepo.find({
       relations: {
         transaksi: {
           perusahaan: true,
@@ -116,7 +116,6 @@ export default class TransaksiService {
         },
       },
     });
-    return akunBukuBesar;
   }
 
   async fetchAkunBeban() {
@@ -152,17 +151,19 @@ export default class TransaksiService {
         },
       });
     }
+
     return await rekapanQuery.getRawMany();
   }
 
   async getLabaRugi(date: { start: string; end: string }) {
-    const pendapatan = await this.transaksiRepo.find({
+    const pendapatanOperasional = await this.transaksiRepo.find({
       where: {
         perusahaan: {
           id: this.perusahaanProvider.getPerusahaan().id
         },
         akun: {
           kode_akun: {
+            kode: Like("4.%"),
             nama_akun: Like("Pendapatan%"),
             posisi_normal: "kredit"
           }
@@ -178,7 +179,7 @@ export default class TransaksiService {
         },
         akun: {
           kode_akun: {
-            kode: Like("5%"),
+            nama_akun: "Harga Pokok Penjualan Barang Dagangan",
             posisi_normal: "debit"
           }
         },
@@ -186,13 +187,62 @@ export default class TransaksiService {
       }
     });
 
-    const beban = await this.transaksiRepo.find({
+    const bebanOperasional = await this.transaksiRepo.find({
       where: {
         perusahaan: {
           id: this.perusahaanProvider.getPerusahaan().id
         },
         akun: {
           kode_akun: {
+            kode: Like("6.%"),
+            nama_akun: Like("Beban%"),
+            posisi_normal: "debit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+
+    const pendapatanLain = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            kode: Like("7.1.%"),
+            nama_akun: Like("Pendapatan%"),
+            posisi_normal: "kredit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+
+    const bebanLain = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            kode: Like("7.2%"),
+            nama_akun: Like("Beban%"),
+            posisi_normal: "debit"
+          }
+        },
+        tanggal: this.dateFilter(date)
+      }
+    });
+    
+    const bebanPajak = await this.transaksiRepo.find({
+      where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
+        akun: {
+          kode_akun: {
+            kode: Like("7.3%"),
             nama_akun: Like("Beban%"),
             posisi_normal: "debit"
           }
@@ -202,10 +252,69 @@ export default class TransaksiService {
     });
 
     return {
-      pendapatan: pendapatan,
+      pendapatan_operasional: pendapatanOperasional,
       hpp: hpp,
-      beban: beban
+      beban_operasional: bebanOperasional,
+      pendapatan_lain: pendapatanLain,
+      beban_lain: bebanLain,
+      beban_pajak: bebanPajak
     };
+  }
+
+  async getArusKas(date: { start: string; end: string }) {
+    /*
+    * @todo create a query for finding a cash transaction
+    */
+    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
+    const dateFilter = this.dateFilter(date);
+    // let rekapanQuery = this.akunRepo
+    //   .createQueryBuilder('akun')
+    //   .leftJoinAndSelect('akun.kode_akun', 'coa')
+    //   .leftJoinAndSelect(
+    //     'akun.transaksi',
+    //     'transaksi',
+    //     'transaksi.perusahaanId = :perusahaanId',
+    //     {
+    //       perusahaanId,
+    //     },
+    //   )
+    //   .select(
+    //     'akun.kodeAkunKode as kode, coa.nama_akun nama, akun.posisi, SUM(akun.jumlah) total',
+    //   )
+    //   .groupBy('akun.kodeAkunKode, akun.posisi');
+    // if (dateFilter) {
+    //   rekapanQuery = rekapanQuery.where({
+    //     transaksi: {
+    //       tanggal: dateFilter,
+    //     },
+    //   });
+    // }
+    // return await rekapanQuery.getRawMany();
+  }
+
+  async getPerubahanEkuitas(date: { start: string; end: string }) {
+    const penambahan_modal = await this.transaksiRepo.find({
+      where: {
+        akun: {
+          kode_akun: Like("3.1.%"),
+          posisi: 'kredit'
+        }
+      }
+    });
+
+    const penarikan_modal = await this.transaksiRepo.find({
+      where: {
+        akun: {
+          kode_akun: Like("3.2.%"),
+          posisi:"debit"
+        }
+      }
+    });
+
+    return {
+      penambahan_modal: penambahan_modal,
+      penarikan_modal: penarikan_modal
+    }
   }
 
   async getAll(
