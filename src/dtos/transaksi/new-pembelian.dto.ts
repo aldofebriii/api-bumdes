@@ -10,6 +10,16 @@ import { IsValidJenisTransaksi, JenisTransaksi } from './new-transaksi.dto';
 import { TransaksiBarangDTO } from '../persediaan/transaksi-barang.dto';
 import { Type } from 'class-transformer';
 
+export class DebiturTransaksi {
+  @IsString()
+  nama: string;
+  @IsDateString()
+  jatuh_tempo_awal: string;
+  @IsDateString()
+  jatuh_tempo_akhir: string;
+}
+
+
 export class NewPembelianDTO {
   @IsDateString()
   tanggal: string;
@@ -27,4 +37,11 @@ export class NewPembelianDTO {
   @ValidateIf((o) => o.jenis_transaksi !== 'tunai')
   @IsNumber()
   uang_muka: number;
+
+  @ValidateNested()
+  @Type(() => DebiturTransaksi)
+  @ValidateIf(
+    (o) => o.jenis_transaksi === 'tunai' || o.jenis_transaksi === 'semi-tunai',
+  )
+  debitur?: DebiturTransaksi;
 }

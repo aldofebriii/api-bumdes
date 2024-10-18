@@ -508,6 +508,21 @@ export default class TransaksiService {
       akun: akunPembelian,
     };
     const newTransaksi = await this.createNew([transaksiPembelian]);
+    if (newPembelian.jenis_transaksi !== 'tunai') {
+      const nominalUtang = transaksiPembelian.akun.filter(
+        (a) => a.kode_akun === NamaKodeAkun.UTANG_JK_PENDEK
+      )[0];
+      await this.pihakService.createNew(
+        {
+          nama: newPembelian.debitur.nama,
+          jatuh_tempo_awal: newPembelian.debitur.jatuh_tempo_awal,
+          jatuh_tempo_akhir: newPembelian.debitur.jatuh_tempo_akhir,
+          status: 'debitur',
+          jumlah: nominalUtang.jumlah,
+        },
+        newTransaksi
+      );
+    }
     return newTransaksi;
   }
 
