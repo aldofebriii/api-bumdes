@@ -5,12 +5,14 @@ import { Repository } from 'typeorm';
 import { NewPihakDTO } from './pihak.controller';
 import HelperService from 'src/helper/helper.service';
 import Transaksi from 'src/transaksi/transaksi.entity';
+import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
 
 @Injectable()
 export default class PihakService {
   constructor(
     @InjectRepository(Pihak) private pihakRepo: Repository<Pihak>,
     private helperService: HelperService,
+    private perusahaanProvider: CurrentPerusahaanProvider,
   ) {}
   async createNew(newPihak: NewPihakDTO, transaksi: Transaksi) {
     const pihak = new Pihak();
@@ -22,5 +24,31 @@ export default class PihakService {
     pihak.transaksi = transaksi;
     await this.pihakRepo.save(pihak);
     return pihak;
+  }
+
+  async getKreditur() {
+    return this.pihakRepo.find({
+      where: {
+        transaksi: {
+          perusahaan: {
+            id: this.perusahaanProvider.getPerusahaan().id
+          }
+        },
+        status: "kreditur"
+      }
+    })
+  }
+
+  async getDebitur() {
+    return this.pihakRepo.find({
+      where: {
+        transaksi: {
+          perusahaan: {
+            id: this.perusahaanProvider.getPerusahaan().id
+          }
+        },
+        status: "debitur"
+      }
+    })
   }
 }
