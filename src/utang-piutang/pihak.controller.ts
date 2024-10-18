@@ -22,13 +22,8 @@ export default class PihakController {
     private pihakService: PihakService,
   ) {}
 
-  @Get('kreditur')
-  getKreditur() {
-    return this.pihakService.getKreditur();
-  }
-
-  @Get('debitur')
-  getDebitur() {
-    return this.pihakService.getDebitur();
+  @Get()
+  getPihak() {
+    return this.pihakService.getPihak();
   }
 }

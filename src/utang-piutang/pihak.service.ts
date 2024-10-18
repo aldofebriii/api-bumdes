@@ -26,28 +26,14 @@ export default class PihakService {
     return pihak;
   }
 
-  async getKreditur() {
+  async getPihak() {
     return this.pihakRepo.find({
       where: {
         transaksi: {
           perusahaan: {
             id: this.perusahaanProvider.getPerusahaan().id
           }
-        },
-        status: "kreditur"
-      }
-    })
-  }
-
-  async getDebitur() {
-    return this.pihakRepo.find({
-      where: {
-        transaksi: {
-          perusahaan: {
-            id: this.perusahaanProvider.getPerusahaan().id
-          }
-        },
-        status: "debitur"
+        }
       }
     })
   }
