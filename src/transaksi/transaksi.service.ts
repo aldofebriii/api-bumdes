@@ -140,6 +140,7 @@ export default class TransaksiService {
           perusahaanId,
         },
       )
+      .where('transaksi.perusahaanId = :perusahaanId', { perusahaanId })
       .select(
         'akun.kodeAkunKode as kode, coa.nama_akun nama, akun.posisi, SUM(akun.jumlah) total',
       )
@@ -295,6 +296,9 @@ export default class TransaksiService {
   async getPerubahanEkuitas(date: { start: string; end: string }) {
     const penambahan_modal = await this.transaksiRepo.find({
       where: {
+        perusahaan: {
+          id: this.perusahaanProvider.getPerusahaan().id
+        },
         akun: {
           kode_akun: Like("3.1.%"),
           posisi: 'kredit'
