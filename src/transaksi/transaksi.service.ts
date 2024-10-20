@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { And, Between, Like, Repository } from 'typeorm';
+import { And, Between, Like, Or, Repository } from 'typeorm';
 import Transaksi from './transaksi.entity';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import HelperService from 'src/helper/helper.service';
@@ -44,11 +44,13 @@ export default class TransaksiService {
   constructor(
     @InjectRepository(Transaksi)
     private transaksiRepo: Repository<Transaksi>,
+    
     @InjectRepository(Akun)
     private akunRepo: Repository<Akun>,
 
     @InjectRepository(ChartOfAccounts)
     private coaRepo: Repository<ChartOfAccounts>,
+
     @InjectRepository(Persediaan)
     private persediaanRepo: Repository<Persediaan>,
 
@@ -170,7 +172,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
 
     const hpp = await this.transaksiRepo.find({
@@ -185,7 +188,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
 
     const bebanOperasional = await this.transaksiRepo.find({
@@ -201,7 +205,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
 
     const pendapatanLain = await this.transaksiRepo.find({
@@ -217,7 +222,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
 
     const bebanLain = await this.transaksiRepo.find({
@@ -233,7 +239,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
     
     const bebanPajak = await this.transaksiRepo.find({
@@ -249,7 +256,8 @@ export default class TransaksiService {
           }
         },
         tanggal: this.dateFilter(date)
-      }
+      },
+      cache: true
     });
 
     return {
@@ -263,34 +271,21 @@ export default class TransaksiService {
   }
 
   async getArusKas(date: { start: string; end: string }) {
-    /*
-    * @todo create a query for finding a cash transaction
-    */
     const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
-    const dateFilter = this.dateFilter(date);
-    // let rekapanQuery = this.akunRepo
-    //   .createQueryBuilder('akun')
-    //   .leftJoinAndSelect('akun.kode_akun', 'coa')
-    //   .leftJoinAndSelect(
-    //     'akun.transaksi',
-    //     'transaksi',
-    //     'transaksi.perusahaanId = :perusahaanId',
-    //     {
-    //       perusahaanId,
-    //     },
-    //   )
-    //   .select(
-    //     'akun.kodeAkunKode as kode, coa.nama_akun nama, akun.posisi, SUM(akun.jumlah) total',
-    //   )
-    //   .groupBy('akun.kodeAkunKode, akun.posisi');
-    // if (dateFilter) {
-    //   rekapanQuery = rekapanQuery.where({
-    //     transaksi: {
-    //       tanggal: dateFilter,
-    //     },
-    //   });
-    // }
-    // return await rekapanQuery.getRawMany();
+    return this.akunRepo.find({
+      relations: {
+        transaksi: {
+          akun: { kode_akun: true }
+        }
+      },
+      where: {
+        transaksi: { perusahaan: { id: perusahaanId } },
+        kode_akun: {
+          nama_akun: "Kas Tunai"
+        }
+      },
+      cache: true
+    });
   }
 
   async getPerubahanEkuitas(date: { start: string; end: string }) {
@@ -303,7 +298,8 @@ export default class TransaksiService {
           kode_akun: Like("3.1.%"),
           posisi: 'kredit'
         }
-      }
+      },
+      cache: true
     });
 
     const penarikan_modal = await this.transaksiRepo.find({
