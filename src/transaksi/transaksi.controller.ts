@@ -25,6 +25,7 @@ import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 import { randomInt } from 'crypto';
+import { NewPelunasanDTO } from 'src/dtos/transaksi/new-pelunasan.dto';
 
 @UseInterceptors(CurrentUserInterceptor)
 @UseGuards(PerusahaanGuard)
@@ -120,6 +121,11 @@ export default class TransaksiController {
   @Post('utang')
   utang(@Body() newUtang: NewUtangDTO) {
     return this.transaksiService.generateAkunUtang(newUtang);
+  }
+
+  @Post('pelunasan')
+  bayarUtang(@Body() newPelunasan: NewPelunasanDTO) {
+    return this.transaksiService.generateAkunPelunasan(newPelunasan);
   }
 
   @Post('beban-operasional')

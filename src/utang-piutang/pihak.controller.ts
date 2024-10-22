@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { StatusPihak } from './pihak.entity';
 import PihakService from './pihak.service';
 import { PerusahaanGuard } from 'src/guard/perusahaan.guard';

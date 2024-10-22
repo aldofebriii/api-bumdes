@@ -19,6 +19,7 @@ import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
 import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
 import { randomInt } from 'crypto';
+import { NewPelunasanDTO } from 'src/dtos/transaksi/new-pelunasan.dto';
 
 export enum KeteranganTransaksi {
   PENJUALAN = 'penjualan',
@@ -418,6 +419,72 @@ export default class TransaksiService {
       utang,
     );
     return utang;
+  }
+
+  async generateAkunPelunasan(newPelunasan: NewPelunasanDTO) {
+    let kodeAkun: string;
+    const pihak = await this.pihakService.getPihakById(newPelunasan.idPihak);
+    const jumlah = newPelunasan.jumlah;
+
+    if (newPelunasan.utang_piutang === "utang") {
+      if (newPelunasan.jangka_waktu === "panjang") {
+        kodeAkun = NamaKodeAkun.UTANG_JK_PANJANG;
+      } else {
+        kodeAkun = NamaKodeAkun.UTANG_JK_PENDEK;
+      }
+      const akunPembayaran: NewAkunDTO[] = [];
+      akunPembayaran.push(
+        {
+          jumlah: jumlah,
+          kode_akun: kodeAkun,
+          posisi: "debit",
+          keterangan: "Utang a.n."+pihak.at(0).nama
+        }
+      );
+      akunPembayaran.push({
+        jumlah: jumlah,
+        kode_akun: NamaKodeAkun.KAS_TUNAI,
+        posisi: "kredit",
+        keterangan: "Pembayaran utang a.n."+pihak.at(0).nama
+      });
+
+      const pelunasan = await this.createNew([{
+        akun: akunPembayaran,
+        nomor: randomInt(999999),
+        tanggal: newPelunasan.tanggal,
+        keterangan: newPelunasan.keterangan
+      }]);
+
+      await this.pihakService.updatePihak(pihak.at(0).id, jumlah);
+      return pelunasan;
+    } else {
+      const akunPembayaran: NewAkunDTO[] = [];
+      kodeAkun = NamaKodeAkun.PIUTANG_USAHA;
+      akunPembayaran.push(
+        {
+          jumlah: jumlah,
+          kode_akun: kodeAkun,
+          posisi: "kredit",
+          keterangan: "Piutang a.n."+pihak.at(0).nama
+        }
+      );
+      akunPembayaran.push({
+        jumlah: jumlah,
+        kode_akun: NamaKodeAkun.KAS_TUNAI,
+        posisi: "debit",
+        keterangan: "pembayaran piutang a.n."+pihak.at(0).nama
+      });
+
+      const pelunasan = await this.createNew([{
+        akun: akunPembayaran,
+        nomor: randomInt(999999),
+        tanggal: newPelunasan.tanggal,
+        keterangan: newPelunasan.keterangan
+      }]);
+
+      await this.pihakService.updatePihak(pihak.at(0).id, jumlah);
+      return pelunasan;
+    }
   }
 
   async generateAkunPembebanan(newBeban: NewBebanDTO) {

@@ -40,7 +40,7 @@ export class IsValidJangkaWaktuConstraint
 }
 
 export function IsValidJangaWaktu() {
-  return Validate(IsValidJangaWaktu);
+  return Validate(IsValidJangkaWaktuConstraint);
 }
 
 export class NewUtangDTO {

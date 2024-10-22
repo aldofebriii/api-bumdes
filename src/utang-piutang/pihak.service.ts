@@ -26,6 +26,14 @@ export default class PihakService {
     return pihak;
   }
 
+  async updatePihak(id: number, jumlah: number) {
+    const pihak = await this.pihakRepo.findBy({ id: id });
+    await this.pihakRepo.save({
+      id: id,
+      jumlah: pihak.at(0).jumlah - jumlah
+    });
+  }
+
   async getPihak() {
     return this.pihakRepo.find({
       where: {
@@ -36,5 +44,9 @@ export default class PihakService {
         }
       }
     })
+  }
+
+  async getPihakById(id: number) {
+    return await this.pihakRepo.findBy({ id: id });
   }
 }
