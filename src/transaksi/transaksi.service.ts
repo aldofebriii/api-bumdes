@@ -438,21 +438,21 @@ export default class TransaksiService {
           jumlah: jumlah,
           kode_akun: kodeAkun,
           posisi: "debit",
-          keterangan: "Utang a.n."+pihak.at(0).nama
+          keterangan: "Utang a.n. "+pihak.at(0).nama
         }
       );
       akunPembayaran.push({
         jumlah: jumlah,
         kode_akun: NamaKodeAkun.KAS_TUNAI,
         posisi: "kredit",
-        keterangan: "Pembayaran utang a.n."+pihak.at(0).nama
+        keterangan: "Pembayaran utang a.n. "+pihak.at(0).nama
       });
 
       const pelunasan = await this.createNew([{
         akun: akunPembayaran,
         nomor: randomInt(999999),
         tanggal: newPelunasan.tanggal,
-        keterangan: newPelunasan.keterangan
+        keterangan: "Pelunasan utang a.n. "+pihak.at(0).nama
       }]);
 
       await this.pihakService.updatePihak(pihak.at(0).id, jumlah);
@@ -465,21 +465,21 @@ export default class TransaksiService {
           jumlah: jumlah,
           kode_akun: kodeAkun,
           posisi: "kredit",
-          keterangan: "Piutang a.n."+pihak.at(0).nama
+          keterangan: "Piutang a.n. "+pihak.at(0).nama
         }
       );
       akunPembayaran.push({
         jumlah: jumlah,
         kode_akun: NamaKodeAkun.KAS_TUNAI,
         posisi: "debit",
-        keterangan: "pembayaran piutang a.n."+pihak.at(0).nama
+        keterangan: "Pembayaran piutang a.n. "+pihak.at(0).nama
       });
 
       const pelunasan = await this.createNew([{
         akun: akunPembayaran,
         nomor: randomInt(999999),
         tanggal: newPelunasan.tanggal,
-        keterangan: newPelunasan.keterangan
+        keterangan: "Penulasan piutang a.n. "+pihak.at(0).nama
       }]);
 
       await this.pihakService.updatePihak(pihak.at(0).id, jumlah);

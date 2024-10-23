@@ -32,6 +32,10 @@ export default class PihakService {
       id: id,
       jumlah: pihak.at(0).jumlah - jumlah
     });
+
+    if ((await this.pihakRepo.find({ where:{ id:id } })).at(0).jumlah == 0) {
+      await this.pihakRepo.delete({ id: id });
+    }
   }
 
   async getPihak() {
