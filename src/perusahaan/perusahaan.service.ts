@@ -4,6 +4,7 @@ import { Perusahaan, Pimpinan } from './perusahaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export default class PerusahaanService {
   constructor(

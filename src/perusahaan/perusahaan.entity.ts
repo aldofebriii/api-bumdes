@@ -1,3 +1,4 @@
+import { Anggota } from 'src/anggota/anggota.entity';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import Transaksi from 'src/transaksi/transaksi.entity';
 import {
@@ -62,4 +63,7 @@ export class Perusahaan {
 
   @OneToMany(() => Persediaan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
   persediaan: Persediaan[];
+
+  @OneToMany(() => Anggota, (a) => a.perusahaan, { onDelete: "CASCADE" })
+  anggota: Anggota[];
 }
