@@ -13,6 +13,8 @@ import Pihak from './utang-piutang/pihak.entity';
 import PihakModule from './utang-piutang/pihak.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { Anggota } from './anggota/anggota.entity';
+import AnggotaModule from './anggota/anggota.module';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
         Akun,
         ChartOfAccounts,
         Pihak,
+        Anggota
       ],
       synchronize: true,
       logging: 'all',
@@ -40,6 +43,7 @@ import { AuthModule } from './auth/auth.module';
     TransaksiModule,
     PersediaanModule,
     PihakModule,
+    AnggotaModule,
     AuthModule,
   ],
   controllers: [AppController],
