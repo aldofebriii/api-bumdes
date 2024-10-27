@@ -36,6 +36,11 @@ export default class TransaksiController {
     private pihakService: PihakService,
   ) {}
 
+  @Get('coa')
+  getCOA() {
+    return this.transaksiService.fetchCOA();
+  }
+
   @Get('akun-beban')
   akunBeban() {
     return this.transaksiService.fetchAkunBeban();

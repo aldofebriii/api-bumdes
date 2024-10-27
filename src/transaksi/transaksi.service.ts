@@ -128,6 +128,9 @@ export default class TransaksiService {
   async fetchAkunModal() {
     return await this.coaRepo.findBy({ kode: Like('3%') });
   }
+  async fetchCOA() {
+    return await this.coaRepo.find();
+  }
 
   async getNeracaSaldo(date: { start: string; end: string }) {
     const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
