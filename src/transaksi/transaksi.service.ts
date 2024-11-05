@@ -424,6 +424,43 @@ export default class TransaksiService {
     return utang;
   }
 
+  async generateAkunPiutang(newPiutang: NewUtangDTO) {
+    const akunPiutang: NewAkunDTO[] = [
+      {
+        posisi: 'kredit',
+        kode_akun: NamaKodeAkun.KAS_TUNAI,
+        jumlah: newPiutang.jumlah,
+        keterangan: newPiutang.keterangan,
+      },
+    ];
+
+    akunPiutang.push({
+      posisi: 'debit',
+      kode_akun: NamaKodeAkun.PIUTANG_USAHA,
+      jumlah: newPiutang.jumlah,
+      keterangan: newPiutang.keterangan,
+    });
+    const piutang = await this.createNew([
+      {
+        akun: akunPiutang,
+        keterangan: newPiutang.keterangan,
+        nomor: randomInt(999999),
+        tanggal: newPiutang.tanggal,
+      },
+    ]);
+    await this.pihakService.createNew(
+      {
+        nama: newPiutang.nama_debitur,
+        jatuh_tempo_awal: newPiutang.jatuh_tempo_awal,
+        jatuh_tempo_akhir: newPiutang.jatuh_tempo_akhir,
+        status: 'kreditur',
+        jumlah: piutang.jumlah,
+      },
+      piutang,
+    );
+    return piutang;
+  }
+
   async generateAkunPelunasan(newPelunasan: NewPelunasanDTO) {
     let kodeAkun: string;
     const pihak = await this.pihakService.getPihakById(newPelunasan.idPihak);

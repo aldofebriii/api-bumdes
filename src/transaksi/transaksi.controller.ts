@@ -128,6 +128,11 @@ export default class TransaksiController {
     return this.transaksiService.generateAkunUtang(newUtang);
   }
 
+  @Post('piutang')
+  piutang(@Body() newUtang: NewUtangDTO) {
+    return this.transaksiService.generateAkunPiutang(newUtang);
+  }
+
   @Post('pelunasan')
   bayarUtang(@Body() newPelunasan: NewPelunasanDTO) {
     return this.transaksiService.generateAkunPelunasan(newPelunasan);

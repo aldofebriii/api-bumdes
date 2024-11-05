@@ -16,12 +16,4 @@ export default class AnggotaController {
         const anggota = await this.anggotaService.createOrEdit(newAnggota);
         return res.status(201).json(anggota);
     }
-
-    @Get()
-    @UseInterceptors(CurrentUserInterceptor)
-    @UseGuards(PerusahaanGuard)
-    async getAnggota(@CurrentUser() perusahaan: Perusahaan, @Res() res: Response) {
-        const anggota = await this.anggotaService.getAnggota(perusahaan.id);
-        return res.status(200).json(anggota);
-    }
 }
