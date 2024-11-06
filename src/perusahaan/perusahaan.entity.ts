@@ -1,16 +1,17 @@
-import { Anggota } from 'src/anggota/anggota.entity';
-import Persediaan from 'src/persediaan/persediaan.entity';
-import Transaksi from 'src/transaksi/transaksi.entity';
+import Persediaan from "src/persediaan/persediaan.entity";
+import Transaksi from "src/transaksi/transaksi.entity";
+import { User } from "src/user/user.entity";
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 
 @Entity()
 export class Pimpinan {
@@ -23,7 +24,7 @@ export class Pimpinan {
   @Column()
   alamat: string;
 
-  @OneToMany(() => Perusahaan, (p) => p.pimpinan, {
+  @OneToOne(() => Perusahaan, (p) => p.pimpinan, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
@@ -32,38 +33,41 @@ export class Pimpinan {
 
 @Entity()
 export class Perusahaan {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ unique: true })
-  nama: string;
+    @Column({ unique: true })
+    nama: string
+    
+    @Column()
+    email: string
+    
+    @Column()
+    alamat: string
 
-  @Column()
-  alamat: string;
+    @Column()
+    nomor_telepon: string
 
-  @Column()
-  email: string;
 
-  @Column()
-  kata_sandi: string;
+    @CreateDateColumn()
+    created_at: Date;
 
-  @CreateDateColumn()
-  created_at: Date;
+    @UpdateDateColumn()
+    updated_at: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+    // Bagian untuk relasi tabel
+    @OneToMany(() => User, (u) => u.perusahaan)
+    @JoinColumn()
+    user: User;
 
-  //Bagian untuk relasi tabel
-  @ManyToOne(() => Pimpinan, (p) => p.perusahaan)
-  @JoinColumn()
-  pimpinan: Pimpinan;
+    //Bagian untuk relasi tabel
+    @OneToMany(() => Transaksi, (t) => t.perusahaan, { onDelete: 'CASCADE' })
+    transaksi: Transaksi[];
 
-  @OneToMany(() => Transaksi, (t) => t.perusahaan, { onDelete: 'CASCADE' })
-  transaksi: Transaksi[];
+    @OneToMany(() => Persediaan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
+    persediaan: Persediaan[];
 
-  @OneToMany(() => Persediaan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
-  persediaan: Persediaan[];
-
-  @OneToMany(() => Anggota, (a) => a.perusahaan, { onDelete: "CASCADE" })
-  anggota: Anggota[];
+    @OneToOne(()=> Pimpinan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
+    pimpinan: Pimpinan;
+    
 }

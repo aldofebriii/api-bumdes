@@ -7,13 +7,13 @@ import TransaksiService from './transaksi.service';
 import HelperService from 'src/helper/helper.service';
 import HelperModule from 'src/helper/helper.module';
 import Persediaan from 'src/persediaan/persediaan.entity';
-import PerusahaanModule from 'src/perusahaan/perusahaan.module';
-import PerusahaanService from 'src/perusahaan/perusahaan.service';
+import PerusahaanModule from 'src/user/user.module';
+import PerusahaanService from 'src/user/user.service';
 import PersediaanModule from 'src/persediaan/persediaan.module';
 import PersediaanService from 'src/persediaan/persediaan.service';
 import Pihak from 'src/utang-piutang/pihak.entity';
 import PihakService from 'src/utang-piutang/pihak.service';
-import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { CurrentUserProvider } from 'src/auth/current-user.service';
 import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 
 @Module({
@@ -37,7 +37,7 @@ import { CurrentUserInterceptor } from 'src/interceptors/current-user.intercepto
     PersediaanService,
     PihakService,
     CurrentUserInterceptor,
-    CurrentPerusahaanProvider,
+    CurrentUserProvider,
   ],
 })
 export default class TransaksiModule {}

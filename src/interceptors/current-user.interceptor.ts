@@ -6,22 +6,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import PerusahaanService from 'src/perusahaan/perusahaan.service';
+import UserService from 'src/user/user.service';
 
 @Injectable()
 export class CurrentUserInterceptor implements NestInterceptor {
-  constructor(private perusahaanService: PerusahaanService) {}
+  constructor(private userService: UserService) {}
   async intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Promise<Observable<any>> {
     const req = context.switchToHttp().getRequest();
 
-    const perusahaan = await this.perusahaanService.findOneById(
-      req.session.perusahaanId,
+    const user = await this.userService.findOneById(
+      req.session.userId,
     );
-    if (!perusahaan) throw new UnauthorizedException('invalid account');
-    req.perusahaan = perusahaan;
+    if (!user) throw new UnauthorizedException('invalid account');
+    req.user = user;
     return next.handle();
   }
 }

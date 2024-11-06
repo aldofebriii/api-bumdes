@@ -20,15 +20,15 @@ import { NewModalDTO } from 'src/dtos/transaksi/new-modal.dto';
 import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
 import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
-import { PerusahaanGuard } from 'src/guard/perusahaan.guard';
+import { UserGuard } from 'src/guard/user.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
-import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
+import { User } from 'src/user/user.entity';
 import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 import { randomInt } from 'crypto';
 import { NewPelunasanDTO } from 'src/dtos/transaksi/new-pelunasan.dto';
 
 @UseInterceptors(CurrentUserInterceptor)
-@UseGuards(PerusahaanGuard)
+@UseGuards(UserGuard)
 @Controller('transaksi')
 export default class TransaksiController {
   constructor(
@@ -96,7 +96,7 @@ export default class TransaksiController {
     @Query('p') p: string,
     @Query('start_date') startDate: string,
     @Query('end_date') endDate: string,
-    @CurrentUser() user: Perusahaan,
+    @CurrentUser() user: User,
   ) {
     /**
      * @todo this need to be change based on user authencation.
@@ -193,7 +193,7 @@ export default class TransaksiController {
   @Post()
   create(
     @Body() newTransaksi: NewTransaksiDTO,
-    @CurrentUser() user: Perusahaan,
+    @CurrentUser() user: User,
   ) {
     return this.transaksiService.createNew([newTransaksi]);
   }

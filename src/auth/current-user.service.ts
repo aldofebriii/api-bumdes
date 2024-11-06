@@ -3,10 +3,10 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
 @Injectable({ scope: Scope.REQUEST })
-export class CurrentPerusahaanProvider {
+export class CurrentUserProvider {
   constructor(@Inject(REQUEST) private readonly req: Request) {}
 
-  getPerusahaan() {
-    return this.req.perusahaan;
+  getUser() {
+    return this.req.user;
   }
 }

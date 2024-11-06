@@ -1,16 +1,16 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import PerusahaanService from 'src/perusahaan/perusahaan.service';
+import UserService from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private perusahaanService: PerusahaanService) {}
+  constructor(private userService: UserService) {}
   async signin(email: string, password: string) {
-    const perusahaan = await this.perusahaanService.findOneByEmail(email);
-    if(!perusahaan) throw new NotFoundException('perusahanan tidak ditemukan');
+    const user = await this.userService.findOneByEmail(email);
+    if(!user) throw new NotFoundException('pengguna tidak ditemukan');
 
-    const valid = bcrypt.compareSync(password, perusahaan.kata_sandi);
+    const valid = bcrypt.compareSync(password, user.kata_sandi);
     if(!valid) throw new HttpException('email / password salah', HttpStatus.UNAUTHORIZED);
-    return perusahaan;
+    return user;
   }
 }

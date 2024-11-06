@@ -5,14 +5,14 @@ import { Repository } from 'typeorm';
 import { NewPihakDTO } from './pihak.controller';
 import HelperService from 'src/helper/helper.service';
 import Transaksi from 'src/transaksi/transaksi.entity';
-import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { CurrentUserProvider } from 'src/auth/current-user.service';
 
 @Injectable()
 export default class PihakService {
   constructor(
     @InjectRepository(Pihak) private pihakRepo: Repository<Pihak>,
     private helperService: HelperService,
-    private perusahaanProvider: CurrentPerusahaanProvider,
+    private userProvider: CurrentUserProvider,
   ) {}
   async createNew(newPihak: NewPihakDTO, transaksi: Transaksi) {
     const pihak = new Pihak();
@@ -43,7 +43,7 @@ export default class PihakService {
       where: {
         transaksi: {
           perusahaan: {
-            id: this.perusahaanProvider.getPerusahaan().id
+            id: this.userProvider.getUser().perusahaan.id
           }
         }
       }

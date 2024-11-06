@@ -24,12 +24,12 @@ export class SeedService {
 
   fakerPerusahaan(): NewPerusahaanDTO {
     return {
-      nama: faker.company.name(),
-      alamat: faker.location.streetAddress(),
-      email: faker.internet.email(),
+      nama_perusahaan: faker.company.name(),
+      email_perusahaan: faker.internet.email(),
+      alamat_perusahaan: faker.location.streetAddress(),
       nama_pimpinan: faker.person.fullName(),
+      nomor_telepon: faker.phone.number(),
       alamat_pimpinan: faker.location.streetAddress(),
-      kata_sandi: '12345679',
     };
   }
 

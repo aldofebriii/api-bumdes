@@ -17,7 +17,7 @@ import { NewUtangDTO } from 'src/dtos/transaksi/new-utang.dto';
 import { NewBebanDTO } from 'src/dtos/transaksi/new-beban.dto';
 import { NewPembelianDTO } from 'src/dtos/transaksi/new-pembelian.dto';
 import { NewPenjualanDTO } from 'src/dtos/transaksi/new-penjualan.dto';
-import { CurrentPerusahaanProvider } from 'src/auth/current-perusahaan.service';
+import { CurrentUserProvider } from 'src/auth/current-user.service';
 import { randomInt } from 'crypto';
 import { NewPelunasanDTO } from 'src/dtos/transaksi/new-pelunasan.dto';
 
@@ -58,7 +58,7 @@ export default class TransaksiService {
     private persediaanService: PersediaanService,
     private helperService: HelperService,
     private pihakService: PihakService,
-    private perusahaanProvider: CurrentPerusahaanProvider,
+    private userProvider: CurrentUserProvider,
   ) {}
 
   private generateKodeAkun(
@@ -113,7 +113,7 @@ export default class TransaksiService {
         },
         transaksi: {
           perusahaan: {
-            id: this.perusahaanProvider.getPerusahaan().id,
+            id: this.userProvider.getUser().perusahaan.id,
           },
           tanggal: this.dateFilter(date),
         },
@@ -133,7 +133,7 @@ export default class TransaksiService {
   }
 
   async getNeracaSaldo(date: { start: string; end: string }) {
-    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
+    const perusahaanId = this.userProvider.getUser().perusahaan.id;
     const dateFilter = this.dateFilter(date);
     let rekapanQuery = this.akunRepo
       .createQueryBuilder('akun')
@@ -166,7 +166,7 @@ export default class TransaksiService {
     const pendapatanOperasional = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -183,7 +183,7 @@ export default class TransaksiService {
     const hpp = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: {
@@ -199,7 +199,7 @@ export default class TransaksiService {
     const bebanOperasional = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: {
@@ -216,7 +216,7 @@ export default class TransaksiService {
     const pendapatanLain = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: {
@@ -233,7 +233,7 @@ export default class TransaksiService {
     const bebanLain = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: {
@@ -250,7 +250,7 @@ export default class TransaksiService {
     const bebanPajak = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: {
@@ -275,7 +275,7 @@ export default class TransaksiService {
   }
 
   async getArusKas(date: { start: string; end: string }) {
-    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
+    const perusahaanId = this.userProvider.getUser().id;
     return this.akunRepo.find({
       relations: {
         transaksi: {
@@ -296,7 +296,7 @@ export default class TransaksiService {
     const penambahan_modal = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.perusahaanProvider.getPerusahaan().id
+          id: this.userProvider.getUser().id
         },
         akun: {
           kode_akun: Like("3.1.%"),
@@ -335,7 +335,7 @@ export default class TransaksiService {
       end: string;
     },
   ) {
-    const perusahaanId = this.perusahaanProvider.getPerusahaan().id;
+    const perusahaanId = this.userProvider.getUser().id;
     const transaksi = await this.transaksiRepo.find({
       relations: {
         akun: { kode_akun: true },
@@ -715,7 +715,7 @@ export default class TransaksiService {
     for (const newTransaksi of newTransaksiList) {
       const totalTransaksi = this.validasiAkun(newTransaksi);
       const transaksi: Transaksi = new Transaksi();
-      transaksi.perusahaan = this.perusahaanProvider.getPerusahaan();
+      transaksi.perusahaan = this.userProvider.getUser().perusahaan;
       transaksi.jumlah = totalTransaksi;
       transaksi.keterangan = newTransaksi.keterangan;
       transaksi.nomor = newTransaksi.nomor;

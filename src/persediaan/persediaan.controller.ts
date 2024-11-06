@@ -10,11 +10,11 @@ import {
 import PersediaanService from './persediaan.service';
 import { Response } from 'express';
 import { NewPersediaanDTO } from 'src/dtos/persediaan/new-persediaan.dto';
-import { PerusahaanGuard } from 'src/guard/perusahaan.guard';
+import { UserGuard } from 'src/guard/user.guard';
 import { CurrentUserInterceptor } from 'src/interceptors/current-user.interceptor';
 
 @UseInterceptors(CurrentUserInterceptor)
-@UseGuards(PerusahaanGuard)
+@UseGuards(UserGuard)
 @Controller('persediaan')
 export default class PersediaanController {
   constructor(private persediaanService: PersediaanService) {}

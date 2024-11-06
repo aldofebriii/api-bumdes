@@ -3,18 +3,18 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Persediaan from './persediaan/persediaan.entity';
-import { Perusahaan, Pimpinan } from './perusahaan/perusahaan.entity';
+import { User } from './user/user.entity';
 import Transaksi from './transaksi/transaksi.entity';
 import { Akun, ChartOfAccounts } from './akun/akun.entity';
-import PerusahaanModule from './perusahaan/perusahaan.module';
+import UserModule from './user/user.module';
 import TransaksiModule from './transaksi/transaksi.module';
 import PersediaanModule from './persediaan/persediaan.module';
 import Pihak from './utang-piutang/pihak.entity';
 import PihakModule from './utang-piutang/pihak.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { Anggota } from './anggota/anggota.entity';
-import AnggotaModule from './anggota/anggota.module';
+import { Perusahaan, Pimpinan } from './perusahaan/perusahaan.entity';
+import PerusahaanModule from './perusahaan/perusahaan.module';
 
 @Module({
   imports: [
@@ -28,22 +28,22 @@ import AnggotaModule from './anggota/anggota.module';
       database: process.env.MYSQL_DB_NAME,
       entities: [
         Pimpinan,
-        Perusahaan,
+        User,
         Transaksi,
         Persediaan,
         Akun,
         ChartOfAccounts,
         Pihak,
-        Anggota
+        Perusahaan
       ],
       synchronize: true,
       logging: 'all',
     }),
-    PerusahaanModule,
+    UserModule,
     TransaksiModule,
     PersediaanModule,
     PihakModule,
-    AnggotaModule,
+    PerusahaanModule,
     AuthModule,
   ],
   controllers: [AppController],

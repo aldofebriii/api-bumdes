@@ -1,3 +1,3 @@
 export class AuthSessionDTO {
-    perusahaanId?: string;
+    userId?: string;
 };

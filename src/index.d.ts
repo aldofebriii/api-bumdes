@@ -1,9 +1,9 @@
-import { Perusahaan } from "./perusahaan/perusahaan.entity";
+import { User } from "./user/user.entity";
 
 declare global {
     namespace Express {
       interface Request {
-        perusahaan?: Perusahaan;  // Add the user property to the Request interface
+        user?: User;  // Add the user property to the Request interface
       }
     }
   }
