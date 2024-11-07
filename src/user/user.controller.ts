@@ -13,7 +13,7 @@ export default class UserController {
   
   @Post('/newAdminAccount')
   async createNewAdminAccount(@Body() newUser: NewUserDTO, @Res() res: Response) {
-    const user = await this.userService.createOrEdit(newUser);
+    const user = await this.userService.create(newUser);
     return res.status(201).json(user);
   }
 
@@ -21,7 +21,7 @@ export default class UserController {
   @UseInterceptors(CurrentUserInterceptor)
   @UseGuards(UserGuard)
   async createNewUserAccount(@CurrentUser() user: User, @Body() newUser: NewUserDTO, @Res() res: Response) {
-    const newAccount = await this.userService.createOrEdit(newUser, user.id);
+    const newAccount = await this.userService.create(newUser, user.id);
     return res.status(201).json(newAccount);
   }
 
@@ -31,5 +31,13 @@ export default class UserController {
   async profile(@CurrentUser() user: User, @Res() res: Response) {
     const profil = await this.userService.getProfile(user.id);
     return res.status(200).json(profil);
+  }
+
+  @Get()
+  @UseInterceptors(CurrentUserInterceptor)
+  @UseGuards(UserGuard)
+  async getAnggota(@CurrentUser() user: User, @Res() res: Response) {
+    const anggota = await this.userService.getAnggota(user.perusahaan.id);
+    return res.status(200).json(anggota);
   }
 }

@@ -183,7 +183,7 @@ export default class TransaksiService {
     const hpp = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -199,7 +199,7 @@ export default class TransaksiService {
     const bebanOperasional = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -216,7 +216,7 @@ export default class TransaksiService {
     const pendapatanLain = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -233,7 +233,7 @@ export default class TransaksiService {
     const bebanLain = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -250,7 +250,7 @@ export default class TransaksiService {
     const bebanPajak = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: {
@@ -275,7 +275,7 @@ export default class TransaksiService {
   }
 
   async getArusKas(date: { start: string; end: string }) {
-    const perusahaanId = this.userProvider.getUser().id;
+    const perusahaanId = this.userProvider.getUser().perusahaan.id;
     return this.akunRepo.find({
       relations: {
         transaksi: {
@@ -296,7 +296,7 @@ export default class TransaksiService {
     const penambahan_modal = await this.transaksiRepo.find({
       where: {
         perusahaan: {
-          id: this.userProvider.getUser().id
+          id: this.userProvider.getUser().perusahaan.id
         },
         akun: {
           kode_akun: Like("3.1.%"),
@@ -335,7 +335,7 @@ export default class TransaksiService {
       end: string;
     },
   ) {
-    const perusahaanId = this.userProvider.getUser().id;
+    const perusahaanId = this.userProvider.getUser().perusahaan.id;
     const transaksi = await this.transaksiRepo.find({
       relations: {
         akun: { kode_akun: true },

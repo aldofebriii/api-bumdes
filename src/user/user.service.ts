@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { NewUserDTO } from 'src/dtos/user/new-user.dto';
 import { User } from './user.entity';
-import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
+import { Perusahaan, Pimpinan } from 'src/perusahaan/perusahaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Pimpinan } from 'src/perusahaan/pimpinan.entity';
 
 @Injectable()
 export default class UserService {
@@ -18,39 +17,42 @@ export default class UserService {
     private pimpinanRepo: Repository<Pimpinan>,
   ) {}
 
-  async createOrEdit(
+  async create(
     newUser: NewUserDTO,
     userId?: number,
   ) {
-    console.log(newUser);
     let user: User;
     if (userId) {
-      user = await this.userRepo.findOneBy({ id: userId });
-      if (!user)
-        throw new HttpException('not_found', HttpStatus.NOT_FOUND);
+      const currentAccount = await this.userRepo.findOne({ relations: { perusahaan: true }, where: { id: userId } });
+      if (!currentAccount) throw new HttpException("Pengguna tidak ditemukan", 404);
+      
+      if (currentAccount.roles !== "admin") throw new HttpException("Pengguna bukan seorang admin!", 403);
+
+      user = new User();
+      user.nama = newUser.nama;
+      user.email = newUser.email;
+      user.roles = "user";
+      user.perusahaan = currentAccount.perusahaan;
+      
     } else {
+      let pimpinan        = new Pimpinan();
+      pimpinan.nama       = newUser.perusahaan.pimpinan.nama;
+      pimpinan.alamat     = newUser.perusahaan.pimpinan.alamat;
+      pimpinan            = await this.pimpinanRepo.save(pimpinan);
+
       let perusahaan             = new Perusahaan();
       perusahaan.nama            = newUser.perusahaan.nama;
       perusahaan.email           = newUser.perusahaan.email;
       perusahaan.nomor_telepon   = newUser.perusahaan.nomor_telepon;
       perusahaan.alamat          = newUser.perusahaan.alamat;
-      
-      perusahaan = await this.perusahaanRepo.save(perusahaan);
-      
-      let pimpinan               = new Pimpinan();
-      pimpinan.nama   = newUser.perusahaan.pimpinan.nama;
-      pimpinan.alamat = newUser.perusahaan.pimpinan.alamat;
-      pimpinan.perusahaan = perusahaan;
-
-      pimpinan = await this.pimpinanRepo.save(pimpinan);
-      perusahaan.pimpinan = pimpinan;
-      await this.perusahaanRepo.save(perusahaan);
+      perusahaan.pimpinan        = pimpinan;
+      perusahaan                 = await this.perusahaanRepo.save(perusahaan);
 
       user = new User();
       user.nama = newUser.nama;
       user.email = newUser.email;
+      user.roles = "admin";
       user.perusahaan = perusahaan;
-      
     } 
     
     /**
@@ -81,24 +83,37 @@ export default class UserService {
   }
 
   findOneById(id: number) {
-    return this.userRepo.findOne({relations: { perusahaan: true }, where: { id }});
+    return this.userRepo.findOne({relations: { perusahaan: { pimpinan: true } }, where: { id }});
+  }
+
+  async getAnggota(id: number) { 
+    return this.userRepo.find({
+      where: {
+        perusahaan: {
+          id: id
+        }
+      }
+    })
   }
 
   async getProfile(id: number) {
     const user = await this.findOneById(id);
 
     return {
-      profile: {
+      user: {
         nama: user.nama,
         email: user.email,
-        roles: user.roles
-      },
-
-      perusahaan: {
-        nama: user.perusahaan.nama,
-        alamat: user.perusahaan.alamat,
-        nomor_telepon: user.perusahaan.nomor_telepon,
-        pimpinan: user.perusahaan.pimpinan
+        roles: user.roles,
+        perusahaan: {
+          nama: user.perusahaan.nama,
+          alamat: user.perusahaan.alamat,
+          email: user.perusahaan.email,
+          nomor_telepon: user.perusahaan.nomor_telepon,
+          pimpinan: {
+            nama: user.perusahaan.pimpinan.nama,
+            alamat: user.perusahaan.pimpinan.alamat
+          }
+        }
       }
     }
   }

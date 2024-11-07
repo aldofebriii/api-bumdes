@@ -49,7 +49,11 @@ export class AuthController {
   @Get('whoami')
   @UseInterceptors(CurrentUserInterceptor)
   @UseGuards(UserGuard)
-  async whoami(@CurrentUser() user: User) {
-    return user;
+  async whoami(@CurrentUser() user: User, @Res() res: Response) {
+    return res.status(200).json({
+      nama: user.nama,
+      email: user.email,
+      roles: user.roles,
+    });
   }
 }

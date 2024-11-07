@@ -14,17 +14,17 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   nama: string;
 
-  @Column()
+  @Column({unique: true})
   email: string;
 
   @Column()
   kata_sandi: string;
 
   @Column({default: "admin"})
-  roles: "admin" | "user"
+  roles: "admin" | "user";
 
   @CreateDateColumn()
   created_at: Date;

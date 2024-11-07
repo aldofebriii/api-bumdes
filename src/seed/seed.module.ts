@@ -11,7 +11,6 @@ import Persediaan from 'src/persediaan/persediaan.entity';
 import Transaksi from 'src/transaksi/transaksi.entity';
 import Pihak from 'src/utang-piutang/pihak.entity';
 import { ConfigModule } from '@nestjs/config';
-import { Pimpinan } from 'src/perusahaan/pimpinan.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -23,7 +22,6 @@ import { Pimpinan } from 'src/perusahaan/pimpinan.entity';
       password: process.env.MYSQL_DB_PASSWORD,
       database: process.env.MYSQL_DB_NAME,
       entities: [
-        Pimpinan,
         Perusahaan,
         Persediaan,
         ChartOfAccounts,

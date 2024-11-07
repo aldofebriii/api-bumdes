@@ -12,7 +12,24 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import { Pimpinan } from "./pimpinan.entity";
+
+@Entity()
+export class Pimpinan {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  nama: string;
+
+  @Column()
+  alamat: string;
+
+  @OneToOne(() => Perusahaan, (p) => p.pimpinan, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  perusahaan: Perusahaan[];
+}
 
 @Entity()
 export class Perusahaan {
