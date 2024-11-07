@@ -6,11 +6,12 @@ import PerusahaanService from 'src/perusahaan/perusahaan.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Akun, ChartOfAccounts } from 'src/akun/akun.entity';
 import SeedService from './seed.service';
-import { Perusahaan, Pimpinan } from 'src/perusahaan/perusahaan.entity';
+import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import Persediaan from 'src/persediaan/persediaan.entity';
 import Transaksi from 'src/transaksi/transaksi.entity';
 import Pihak from 'src/utang-piutang/pihak.entity';
 import { ConfigModule } from '@nestjs/config';
+import { Pimpinan } from 'src/perusahaan/pimpinan.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -37,6 +38,10 @@ import { ConfigModule } from '@nestjs/config';
     PerusahaanModule,
     PersediaanModule,
   ],
-  providers: [SeedService, PerusahaanService, PersediaanService],
+  providers: [
+    SeedService,
+    // PerusahaanService,
+    // PersediaanService
+  ],
 })
 export default class SeedModule {}

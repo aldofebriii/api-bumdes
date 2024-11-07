@@ -13,8 +13,9 @@ import Pihak from './utang-piutang/pihak.entity';
 import PihakModule from './utang-piutang/pihak.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { Perusahaan, Pimpinan } from './perusahaan/perusahaan.entity';
+import { Perusahaan } from './perusahaan/perusahaan.entity';
 import PerusahaanModule from './perusahaan/perusahaan.module';
+import { Pimpinan } from './perusahaan/pimpinan.entity';
 
 @Module({
   imports: [

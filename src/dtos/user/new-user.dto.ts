@@ -11,5 +11,8 @@ export class NewUserDTO {
   email: string;
 
   @IsString()
+  roles: "admin" | "user";
+
+  @IsString()
   kata_sandi: string;
 }

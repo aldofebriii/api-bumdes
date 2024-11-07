@@ -13,42 +13,42 @@ import * as path from 'path';
 
 @Injectable()
 export class SeedService {
-  private fakePerusahaan: Perusahaan[] = [];
-  private fakePersediaan = [];
+  // private fakePerusahaan: Perusahaan[] = [];
+  // private fakePersediaan = [];
   constructor(
     @InjectRepository(ChartOfAccounts)
     private coaRepo: Repository<ChartOfAccounts>,
-    private perusahaanService: PerusahaanService,
-    private persediaanService: PersediaanService,
+    // private perusahaanService: PerusahaanService,
+    // private persediaanService: PersediaanService,
   ) {}
 
-  fakerPerusahaan(): NewPerusahaanDTO {
-    return {
-      nama_perusahaan: faker.company.name(),
-      email_perusahaan: faker.internet.email(),
-      alamat_perusahaan: faker.location.streetAddress(),
-      nama_pimpinan: faker.person.fullName(),
-      nomor_telepon: faker.phone.number(),
-      alamat_pimpinan: faker.location.streetAddress(),
-    };
-  }
+  // fakerPerusahaan(): NewPerusahaanDTO {
+  //   return {
+  //     nama: faker.company.name(),
+  //     email: faker.internet.email(),
+  //     alamat: faker.location.streetAddress(),
+  //     pimpinan.nama: faker.person.fullName(),
+  //     nomor_telepon: faker.phone.number(),
+  //     alamat_pimpinan: faker.location.streetAddress(),
+  //   };
+  // }
 
-  fakerPersediaan: () => NewPersediaanDTO = () => {
-    const randomBool = Math.random() >= 0.5;
-    return {
-      nama_barang: faker.vehicle.vehicle(),
-      harga_beli_barang: faker.number.float({
-        min: 1000,
-        max: 100_000,
-        fractionDigits: 2,
-      }),
-      kuantitas: faker.number.int({ min: 100, max: 10000 }),
-      sku: faker.finance.accountName(),
-      perusahaan_id: randomBool
-        ? this.fakePerusahaan[0].id
-        : this.fakePerusahaan[1].id,
-    };
-  };
+  // fakerPersediaan: () => NewPersediaanDTO = () => {
+  //   const randomBool = Math.random() >= 0.5;
+  //   return {
+  //     nama_barang: faker.vehicle.vehicle(),
+  //     harga_beli_barang: faker.number.float({
+  //       min: 1000,
+  //       max: 100_000,
+  //       fractionDigits: 2,
+  //     }),
+  //     kuantitas: faker.number.int({ min: 100, max: 10000 }),
+  //     sku: faker.finance.accountName(),
+  //     perusahaan_id: randomBool
+  //       ? this.fakePerusahaan[0].id
+  //       : this.fakePerusahaan[1].id,
+  //   };
+  // };
 
   async generateCoA() {
     const rawCoa = JSON.parse(
@@ -57,38 +57,38 @@ export class SeedService {
     await this.coaRepo.save(rawCoa);
   }
 
-  async generatePerusahaan() {
-    const multipleNewPerusahaan: NewPerusahaanDTO[] = faker.helpers.multiple(
-      this.fakerPerusahaan,
-      {
-        count: 2, ///Hanya ngegenerate dua perusahaan
-      },
-    );
+  // async generatePerusahaan() {
+  //   const multipleNewPerusahaan: NewPerusahaanDTO[] = faker.helpers.multiple(
+  //     this.fakerPerusahaan,
+  //     {
+  //       count: 2, ///Hanya ngegenerate dua perusahaan
+  //     },
+  //   );
 
-    for (const perusahaan of multipleNewPerusahaan) {
-      const newPerusahaan = await this.perusahaanService.createOrEdit(
-        perusahaan,
-      );
-      this.fakePerusahaan.push(newPerusahaan);
-    }
-  }
+  //   for (const perusahaan of multipleNewPerusahaan) {
+  //     const newPerusahaan = await this.perusahaanService.createOrEdit(
+  //       perusahaan,
+  //     );
+  //     this.fakePerusahaan.push(newPerusahaan);
+  //   }
+  // }
 
-  generatePersediaan = async () => {
-    if (this.fakePerusahaan.length === 0)
-      throw new Error(
-        'SeederError: Perusahaan generator must initizalize first',
-      );
-    const multipleNewPersediaan: NewPersediaanDTO[] = faker.helpers.multiple(
-      this.fakerPersediaan,
-      { count: 20 },
-    );
-    for (const persediaan of multipleNewPersediaan) {
-      const newPersediaan = await this.persediaanService.createOrEdit(
-        persediaan,
-      );
-      this.fakePersediaan.push(newPersediaan);
-    }
-  };
+  // generatePersediaan = async () => {
+  //   if (this.fakePerusahaan.length === 0)
+  //     throw new Error(
+  //       'SeederError: Perusahaan generator must initizalize first',
+  //     );
+  //   const multipleNewPersediaan: NewPersediaanDTO[] = faker.helpers.multiple(
+  //     this.fakerPersediaan,
+  //     { count: 20 },
+  //   );
+  //   for (const persediaan of multipleNewPersediaan) {
+  //     const newPersediaan = await this.persediaanService.createOrEdit(
+  //       persediaan,
+  //     );
+  //     this.fakePersediaan.push(newPersediaan);
+  //   }
+  // };
 }
 
 export default SeedService;

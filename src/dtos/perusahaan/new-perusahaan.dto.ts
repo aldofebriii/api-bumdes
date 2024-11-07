@@ -1,22 +1,18 @@
 import { IsString, IsEmail, IsPhoneNumber } from "class-validator";
+import { NewPimpinanDTO } from "../pimpinan/new-pimpinan.dto";
 
 export class NewPerusahaanDTO {
     @IsString()
-    nama_perusahaan: string;
+    nama: string;
 
     @IsEmail()
-    email_perusahaan: string;
+    email: string;
     
     @IsPhoneNumber()
     nomor_telepon: string;
 
     @IsString()
-    alamat_perusahaan: string;
+    alamat: string;
 
-    @IsString()
-    nama_pimpinan: string;
-
-    @IsString()
-    alamat_pimpinan: string;
-
+    pimpinan: NewPimpinanDTO;
 }

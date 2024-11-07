@@ -18,15 +18,12 @@ export class User {
   nama: string;
 
   @Column()
-  alamat: string;
-
-  @Column()
   email: string;
 
   @Column()
   kata_sandi: string;
 
-  @Column()
+  @Column({default: "admin"})
   roles: "admin" | "user"
 
   @CreateDateColumn()

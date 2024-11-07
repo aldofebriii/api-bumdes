@@ -11,9 +11,9 @@ import { UserGuard } from "src/guard/user.guard";
 export default class PerusahaanController {
     constructor(private perusahaanService: PerusahaanService) {}
 
-    @Post()
-    async create(@Body() newPerusahaan: NewPerusahaanDTO, @Res() res: Response) {
-        const perusahaan = await this.perusahaanService.createOrEdit(newPerusahaan);
-        return res.status(201).json(perusahaan);
-    }
+    // @Post()
+    // async create(@Body() newPerusahaan: NewPerusahaanDTO, @Res() res: Response) {
+    //     const perusahaan = await this.perusahaanService.createOrEdit(newPerusahaan);
+    //     return res.status(201).json(perusahaan);
+    // }
 }

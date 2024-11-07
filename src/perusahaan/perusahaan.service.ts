@@ -11,27 +11,27 @@ export default class PerusahaanService {
         private perusahaanRepo: Repository<Perusahaan>
     ) {}
 
-    async createOrEdit(
-        newPerusahaan: NewPerusahaanDTO,
-        perusahaanId?: number,
-    ) {
-        let perusahaan: Perusahaan;
-        if(perusahaanId) {
-            perusahaan = await this.perusahaanRepo.findOneBy({ id: perusahaanId });
-            if(!perusahaan)
-                throw new HttpException('not_found', HttpStatus.NOT_FOUND);
-        } else {
-            perusahaan = new Perusahaan();
-        }
+    // async createOrEdit(
+    //     newPerusahaan: NewPerusahaanDTO,
+    //     perusahaanId?: number,
+    // ) {
+    //     let perusahaan: Perusahaan;
+    //     if(perusahaanId) {
+    //         perusahaan = await this.perusahaanRepo.findOneBy({ id: perusahaanId });
+    //         if(!perusahaan)
+    //             throw new HttpException('not_found', HttpStatus.NOT_FOUND);
+    //     } else {
+    //         perusahaan = new Perusahaan();
+    //     }
         
-        perusahaan.nama            = newPerusahaan.nama_perusahaan;
-        perusahaan.alamat          = newPerusahaan.alamat_perusahaan;
-        perusahaan.nomor_telepon   = newPerusahaan.nomor_telepon;
-        perusahaan.pimpinan.nama   = newPerusahaan.nama_pimpinan;
-        perusahaan.pimpinan.alamat = newPerusahaan.alamat_pimpinan;
+    //     perusahaan.nama            = newPerusahaan.nama_perusahaan;
+    //     perusahaan.alamat          = newPerusahaan.alamat_perusahaan;
+    //     perusahaan.nomor_telepon   = newPerusahaan.nomor_telepon;
+    //     perusahaan.pimpinan.nama   = newPerusahaan.nama_pimpinan;
+    //     perusahaan.pimpinan.alamat = newPerusahaan.alamat_pimpinan;
         
-        return perusahaan;
-    }
+    //     return perusahaan;
+    // }
 
     validasiPerusahaan(perusahaanId: number) {
         return this.perusahaanRepo.findOneBy({ id: perusahaanId });

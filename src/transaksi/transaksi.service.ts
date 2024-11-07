@@ -548,9 +548,11 @@ export default class TransaksiService {
         jumlah:
           NamaKodeAkun.KAS_TUNAI === kode
             ? newBeban.jumlah
-            : newBeban.jumlah - newBeban.uang_muka,
+            : newBeban.uang_muka,
       });
     }
+
+    console.log(akunPembebanan);
     const pembebanan = await this.createNew([
       {
         akun: akunPembebanan,

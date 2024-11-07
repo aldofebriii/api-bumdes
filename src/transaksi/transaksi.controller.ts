@@ -140,6 +140,7 @@ export default class TransaksiController {
 
   @Post('beban-operasional')
   pembebanan(@Body() newBeban: NewBebanDTO) {
+    console.log(newBeban);
     return this.transaksiService.generateAkunPembebanan(newBeban);
   }
 

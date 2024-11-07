@@ -12,28 +12,11 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-
-@Entity()
-export class Pimpinan {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  nama: string;
-
-  @Column()
-  alamat: string;
-
-  @OneToOne(() => Perusahaan, (p) => p.pimpinan, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  perusahaan: Perusahaan[];
-}
+import { Pimpinan } from "./pimpinan.entity";
 
 @Entity()
 export class Perusahaan {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({})
     id: number;
 
     @Column({ unique: true })
@@ -67,7 +50,7 @@ export class Perusahaan {
     @OneToMany(() => Persediaan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
     persediaan: Persediaan[];
 
-    @OneToOne(()=> Pimpinan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
+    @ManyToOne(()=> Pimpinan, (p) => p.perusahaan, { onDelete: 'CASCADE' })
     pimpinan: Pimpinan;
     
 }

@@ -7,8 +7,8 @@ async function bootstrap() {
     .then(async (ctx) => {
       const seeder = ctx.get(SeedService);
       await seeder.generateCoA();
-      await seeder.generatePerusahaan();
-      await seeder.generatePersediaan();
+      // await seeder.generatePerusahaan();
+      // await seeder.generatePersediaan();
       ctx.close();
     })
     .catch((err) => {

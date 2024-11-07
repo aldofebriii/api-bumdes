@@ -5,7 +5,7 @@ import { Perusahaan } from 'src/perusahaan/perusahaan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import PerusahaanService from 'src/perusahaan/perusahaan.service';
+import { Pimpinan } from 'src/perusahaan/pimpinan.entity';
 
 @Injectable()
 export default class UserService {
@@ -14,20 +14,44 @@ export default class UserService {
     private userRepo: Repository<User>,
     @InjectRepository(Perusahaan)
     private perusahaanRepo: Repository<Perusahaan>,
+    @InjectRepository(Pimpinan)
+    private pimpinanRepo: Repository<Pimpinan>,
   ) {}
 
   async createOrEdit(
     newUser: NewUserDTO,
     userId?: number,
   ) {
+    console.log(newUser);
     let user: User;
     if (userId) {
       user = await this.userRepo.findOneBy({ id: userId });
       if (!user)
         throw new HttpException('not_found', HttpStatus.NOT_FOUND);
     } else {
+      let perusahaan             = new Perusahaan();
+      perusahaan.nama            = newUser.perusahaan.nama;
+      perusahaan.email           = newUser.perusahaan.email;
+      perusahaan.nomor_telepon   = newUser.perusahaan.nomor_telepon;
+      perusahaan.alamat          = newUser.perusahaan.alamat;
+      
+      perusahaan = await this.perusahaanRepo.save(perusahaan);
+      
+      let pimpinan               = new Pimpinan();
+      pimpinan.nama   = newUser.perusahaan.pimpinan.nama;
+      pimpinan.alamat = newUser.perusahaan.pimpinan.alamat;
+      pimpinan.perusahaan = perusahaan;
+
+      pimpinan = await this.pimpinanRepo.save(pimpinan);
+      perusahaan.pimpinan = pimpinan;
+      await this.perusahaanRepo.save(perusahaan);
+
       user = new User();
-    }
+      user.nama = newUser.nama;
+      user.email = newUser.email;
+      user.perusahaan = perusahaan;
+      
+    } 
     
     /**
      * async process to hash password
@@ -57,7 +81,7 @@ export default class UserService {
   }
 
   findOneById(id: number) {
-    return this.userRepo.findOneBy({ id });
+    return this.userRepo.findOne({relations: { perusahaan: true }, where: { id }});
   }
 
   async getProfile(id: number) {

@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
 import PerusahaanService from "./perusahaan.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Perusahaan, Pimpinan } from "./perusahaan.entity";
+import { Perusahaan } from "./perusahaan.entity";
 import PerusahaanController from "./perusahaan.controller";
 import { CurrentUserInterceptor } from "src/interceptors/current-user.interceptor";
 import { CurrentUserProvider } from "src/auth/current-user.service";
 import UserModule from "src/user/user.module";
+import { Pimpinan } from "./pimpinan.entity";
 
 @Module({
     exports: [PerusahaanService, TypeOrmModule],
