@@ -14,7 +14,7 @@ export default class HelperService {
   }
 
   validationYYYYMMDD(dateString: string) {
-    const regex = new RegExp(/^\d{4}-\d{2}-\d{2}$/);
+    const regex = new RegExp(/^\d{4}-(?(?=\d{2})(?(?=0+)0[1-9]|1[0-2])|[1-9])-(?(?=\d{2})(?(?=3+)[0-3][0-1]|[0-3][0-9])|[1-9])$/);
     return regex.test(dateString);
   }
 
